@@ -5,8 +5,34 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+This chunk is to refresh R studio and library the required packages.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+rm(list = ls())
+if (length((.packages())) > 7){
+invisible(lapply(paste0("package:", names(sessionInfo()$otherPkgs)),
+                 detach,
+                 character.only = TRUE, unload = TRUE))}
+
+pckgs <- c("tidyverse",
+           "plotly",
+           "broom", 
+           "readr", 
+           "MASS", 
+           "ggpubr", 
+           "AER", 
+           "DHARMa", 
+           "jtools", 
+           "broom.mixed", 
+           "MASS", 
+           "reshape2")
+
+lapply(pckgs, require, character.only = TRUE)
+
 ```
+
+
 
 
