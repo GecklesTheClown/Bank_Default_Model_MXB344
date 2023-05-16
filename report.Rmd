@@ -27,12 +27,374 @@ pckgs <- c("tidyverse",
            "jtools", 
            "broom.mixed", 
            "MASS", 
-           "reshape2")
+           "reshape2",
+           "GGally",
+           "dplyr",
+           "ggplot2")
 
 lapply(pckgs, require, character.only = TRUE)
 #ooogy boogy
 ```
 
+```{r data, include=TRUE}
+All_loan_data <- read.csv(file = "all_loan_data.csv") # Load in the loan data
 
+Ext_loan_data <- read.csv(file = "extended_loan_data.csv")  # Load in the extended loan data with time and regions
 
+## There are variables that we won't study because they weren't available at the time of the loan application, these varaibles are,
+# "credit_age_yrs"
+# "delinq_2yrs"
+# "dti"
+# "inq_last_6mths"
+# "last_pymnt_amnt"
+# "pub_rec"
+# "open_acc"
+# "total_acc"
+# "total_int"
+# "total-prncp"
+# "revol_bal"
+# "revol_util"
 
+# Thus in the All_loan_data this leaves use with 5 catagorical variables and 3 continous varaibles
+
+# Make all catagorical variables into factors for R (hashed out counts just in case we do want some counts as catagorical variables)
+All_loan_data$term <- factor(All_loan_data$term)
+levels(All_loan_data$term)
+All_loan_data$emp_length <- factor(All_loan_data$emp_length)
+levels(All_loan_data$emp_length)
+All_loan_data$home_ownership <- factor(All_loan_data$home_ownership)
+levels(All_loan_data$home_ownership)
+All_loan_data$verification_status <- factor(All_loan_data$verification_status)
+levels(All_loan_data$verification_status)
+All_loan_data$purpose <- factor(All_loan_data$purpose)
+levels(All_loan_data$purpose)
+```
+
+```{r sum, include=TRUE}
+summary(All_loan_data) # Summary of data
+```
+
+```{r explore, include=TRUE}
+### Make plots for the 5 categorical variables vs repay failure 
+## Plot the proportion and log proportion of failure for term
+# Obtain number of people in each term
+termsum <- summary(All_loan_data$term)
+M36 <- termsum[1]
+M60 <- termsum[2]
+# Obtain number of people that failed in each term
+Loan_data_fail <- filter(All_loan_data, repay_fail == "1" )
+termfail <- Loan_data_fail$term
+termfailsum <- summary(termfail)
+M36F <- termfailsum[1]
+M60F <- termfailsum[2]
+# Obtain proportion and log(proportion) of failure in each term
+PropM36F <- M36F / M36
+PropM60F <- M60F / M60
+logPropM36F <- log(PropM36F)
+logPropM60F <- log(PropM60F)
+# Create data frame containing proportion and log(proportion) of failure in each term
+propterm <- c(PropM36F, PropM60F)
+logpropterm <- c(logPropM36F, logPropM60F)
+proptermdf <- as.table(propterm)
+proptermdf <- as.data.frame(proptermdf)
+proptermdf <- cbind(proptermdf, logpropterm)
+# Graph the data
+term_labels <- c("36 months", "60 months") # Make labels for the box plots with term as a variable
+ptermfail<-ggplot(proptermdf, aes(x=Var1, y=Freq)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = term_labels) +
+  labs(x = "Term",y = "Repay Failure Proportion") 
+ptermfail
+logptermfail<-ggplot(proptermdf, aes(x=Var1, y=logpropterm)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = term_labels) +
+  labs(x = "Term",y = "Repay Failure Log(Proportion)") 
+logptermfail
+
+## Plot the proportion and log proportion of failure for emp_length
+# Obtain number of people in each emp_length
+empsum <- summary(All_loan_data$emp_length)
+YL1 <- empsum[1]
+Y1 <- empsum[2]
+Y2 <- empsum[4]
+Y3 <- empsum[5]
+Y4 <- empsum[6]
+Y5 <- empsum[7]
+Y6 <- empsum[8]
+Y7 <- empsum[9]
+Y8 <- empsum[10]
+Y9 <- empsum[11]
+YG10 <- empsum[3]
+NotAp <- empsum[12]
+# Obtain number of people that failed in each emp_length
+empfail <- Loan_data_fail$emp_length
+empfailsum <- summary(empfail)
+YL1F <- empfailsum[1]
+Y1F <- empfailsum[2]
+Y2F <- empfailsum[4]
+Y3F <- empfailsum[5]
+Y4F <- empfailsum[6]
+Y5F <- empfailsum[7]
+Y6F <- empfailsum[8]
+Y7F <- empfailsum[9]
+Y8F <- empfailsum[10]
+Y9F <- empfailsum[11]
+YG10F <- empfailsum[3]
+NotApF <- empfailsum[12]
+# Obtain proportion and log(proportion) of failure in each emp_length
+PropYL1F <- YL1F / YL1
+PropY1F <- Y1F / Y1
+PropY2F <- Y2F / Y2
+PropY3F <- Y3F / Y3
+PropY4F <- Y4F / Y4
+PropY5F <- Y5F / Y5
+PropY6F <- Y6F / Y6
+PropY7F <- Y7F / Y7
+PropY8F <- Y8F / Y8
+PropY9F <- Y9F / Y9
+PropYG10F <- YG10F / YG10
+PropNotApF <- NotApF / NotAp
+LogPropYL1F <- log(PropYL1F)
+LogPropY1F <- log(PropY1F)
+LogPropY2F <- log(PropY2F)
+LogPropY3F <- log(PropY3F)
+LogPropY4F <- log(PropY4F)
+LogPropY5F <- log(PropY5F)
+LogPropY6F <- log(PropY6F)
+LogPropY7F <- log(PropY7F)
+LogPropY8F <- log(PropY8F)
+LogPropY9F <- log(PropY9F)
+LogPropYG10F <- log(PropYG10F)
+LogPropNotApF <- log(PropNotApF)
+# Create data frame containing proportion and log(proportion) of failure in each emp_length
+propemp <- c(PropYL1F,PropY1F,PropY2F,PropY3F,PropY4F,PropY5F,PropY6F,PropY7F,PropY8F,PropY9F,PropYG10F,PropNotApF)
+logpropemp <- c(LogPropYL1F,LogPropY1F,LogPropY2F,LogPropY3F,LogPropY4F,LogPropY5F,LogPropY6F,LogPropY7F,LogPropY8F,LogPropY9F,LogPropYG10F,LogPropNotApF)
+propempdf <- as.table(propemp)
+propempdf <- as.data.frame(propempdf)
+propempdf <- cbind(propempdf, logpropemp)
+# Graph the data
+emp_labels <- c("<1 year", "1 year", "2 years", "3 years", "4 years", "5 years", "6 years", "7 years", "8 year", "9 years", ">10 years", "NA") # Make labels for the box plots with emp_length as a variable
+pempfail<-ggplot(propempdf, aes(x=Var1, y=Freq)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = emp_labels) +
+  labs(x = "Emp_Length",y = "Repay Failure Proportion") 
+pempfail
+logpempfail<-ggplot(propempdf, aes(x=Var1, y=logpropemp)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = emp_labels) +
+  labs(x = "Emp_length",y = "Repay Failure Log(Proportion)") 
+logpempfail
+
+## Plot the proportion and log proportion of failure for home_ownership
+# Obtain number of people in each home_ownership
+homesum <- summary(All_loan_data$home_ownership)
+HomeMorg <- homesum[1]
+HomeNone <- homesum[2]
+HomeOther <- homesum[3]
+HomeOwn <- homesum[4]
+HomeRent <- homesum[5]
+# Obtain number of people that failed in each home_ownership
+homefail <- Loan_data_fail$home_ownership
+homefailsum <- summary(homefail)
+HomeMorgF <- homefailsum[1]
+HomeNoneF <- homefailsum[2]
+HomeOtherF <- homefailsum[3]
+HomeOwnF <- homefailsum[4]
+HomeRentF <- homefailsum[5]
+# Obtain proportion and log(proportion) of failure in each home_ownership
+PropHomeMorgF <- HomeMorgF / HomeMorg
+PropHomeNoneF <- HomeNoneF / HomeNone
+PropHomeOtherF <- HomeOtherF / HomeOther
+PropHomeOwnF <- HomeOwnF / HomeOwn
+PropHomeRentF <- HomeRentF / HomeRent
+LogPropHomeMorgF <- log(PropHomeMorgF)
+LogPropHomeNoneF <- log(PropHomeNoneF)
+LogPropHomeOtherF <- log(PropHomeOtherF)
+LogPropHomeOwnF <- log(PropHomeOwnF)
+LogPropHomeRentF <- log(PropHomeRentF)
+# Create data frame containing proportion and log(proportion) of failure in each home_ownership
+prophome <- c(PropHomeMorgF, PropHomeNoneF, PropHomeOtherF, PropHomeOwnF, PropHomeRentF)
+logprophome <- c(LogPropHomeMorgF, LogPropHomeNoneF, LogPropHomeOtherF, LogPropHomeOwnF, LogPropHomeRentF)
+prophomedf <- as.table(prophome)
+prophomedf <- as.data.frame(prophomedf)
+prophomedf <- cbind(prophomedf, logprophome)
+# Graph the data
+home_labels <- c("Mortgage", "None", "Other", "Own", "Rent") # Make labels for the box plots with home_ownership as a variable
+phomefail<-ggplot(prophomedf, aes(x=Var1, y=Freq)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = home_labels) +
+  labs(x = "Home_Ownership",y = "Repay Failure Proportion") 
+phomefail
+logphomefail<-ggplot(prophomedf, aes(x=Var1, y=logprophome)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = home_labels) +
+  labs(x = "Home_Ownership",y = "Repay Failure Log(Proportion)") 
+logphomefail
+
+## Plot the proportion and log proportion of failure for Verification_status
+# Obtain number of people in each verification_status
+verisum <- summary(All_loan_data$verification_status)
+NotVeri <- verisum[1]
+SouVeri <- verisum[2]
+Veri <- verisum[3]
+# Obtain number of people that failed in each Verification_status
+verifail <- Loan_data_fail$verification_status
+verifailsum <- summary(verifail)
+NotVeriF <- verifailsum[1]
+SouVeriF <- verifailsum[2]
+VeriF <- verifailsum[3]
+# Obtain proportion and log(proportion) of failure in each Verification_status
+PropNotVeriF <- NotVeriF / NotVeri
+PropSouVeriF <- SouVeriF / SouVeri
+PropVeriF <- VeriF / Veri
+LogPropNotVeriF <- log(PropNotVeriF)
+LogPropSouVeriF <- log(PropSouVeriF)
+LogPropVeriF <- log(PropVeriF)
+# Create data frame containing proportion and log(proportion) of failure in each Verification_status
+propveri <- c(PropNotVeriF, PropSouVeriF, PropVeriF)
+logpropveri <- c(LogPropNotVeriF, LogPropSouVeriF, LogPropVeriF)
+propveridf <- as.table(propveri)
+propveridf <- as.data.frame(propveridf)
+propveridf <- cbind(propveridf, logpropveri)
+# Graph the data
+veri_labels <- c("Not Verified", "Source Verified", "Verified") # Make labels for the box plots with Verification_status as a variable
+pverifail<-ggplot(propveridf, aes(x=Var1, y=Freq)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = veri_labels) +
+  labs(x = "Verification_Status",y = "Repay Failure Proportion") 
+pverifail
+logpverifail<-ggplot(propveridf, aes(x=Var1, y=logpropveri)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = veri_labels) +
+  labs(x = "Verification_Status",y = "Repay Failure Log(Proportion)") 
+logpverifail
+
+## Plot the proportion and log proportion of failure for purpose
+# Obtain number of people in each purpose
+purpsum <- summary(All_loan_data$purpose)
+Car <- purpsum[1]
+Cred <- purpsum[2]
+Dept <- purpsum[3]
+Edu <- purpsum[4]
+Home <- purpsum[5]
+House <- purpsum[6]
+Maj <- purpsum[7]
+Med <- purpsum[8]
+Move <- purpsum[9]
+Oth <- purpsum[10]
+Renew <- purpsum[11]
+Small <- purpsum[12]
+Vac <- purpsum[13]
+Wed <- purpsum[14]
+# Obtain number of people that failed in each purpose
+purpfail <- Loan_data_fail$purpose
+purpfailsum <- summary(purpfail)
+CarF <- purpfailsum[1]
+CredF <- purpfailsum[2]
+DeptF <- purpfailsum[3]
+EduF <- purpfailsum[4]
+HomeF <- purpfailsum[5]
+HouseF <- purpfailsum[6]
+MajF <- purpfailsum[7]
+MedF <- purpfailsum[8]
+MoveF <- purpfailsum[9]
+OthF <- purpfailsum[10]
+RenewF <- purpfailsum[11]
+SmallF <- purpfailsum[12]
+VacF <- purpfailsum[13]
+WedF <- purpfailsum[14]
+# Obtain proportion and log(proportion) of failure in each purpose
+PropCarF <- CarF / Car
+PropCredF <- CredF / Cred
+PropDeptF <- DeptF / Dept
+PropEduF <- EduF / Edu
+PropHomeF <- HomeF / Home
+PropHouseF <- HouseF / House
+PropMajF <- MajF / Maj
+PropMedF <- MedF / Med
+PropMoveF <- MoveF / Move
+PropOthF <- OthF / Oth
+PropRenewF <- RenewF / Renew
+PropSmallF <- SmallF / Small
+PropVacF <- VacF / Vac
+PropWedF <- WedF / Wed
+LogPropCarF <- log(PropCarF)
+LogPropCredF <- log(PropCredF)
+LogPropDeptF <- log(PropDeptF)
+LogPropEduF <- log(PropEduF)
+LogPropHomeF <- log(PropHomeF)
+LogPropHouseF <- log(PropHouseF)
+LogPropMajF <- log(PropMajF)
+LogPropMedF <- log(PropMedF)
+LogPropMoveF <- log(PropMoveF )
+LogPropOthF <- log(PropOthF)
+LogPropRenewF <- log(PropRenewF)
+LogPropSmallF <- log(PropSmallF)
+LogPropVacF <- log(PropVacF)
+LogPropWedF <- log(PropWedF)
+# Create data frame containing proportion and log(proportion) of failure in each purpose
+proppurp <- c(PropCarF,PropCredF,PropDeptF,PropEduF,PropHomeF,PropHouseF,PropMajF,PropMedF,PropMoveF,PropOthF,PropRenewF,PropSmallF,PropVacF,PropWedF)
+logproppurp <- c(LogPropCarF,LogPropCredF,LogPropDeptF,LogPropEduF,LogPropHomeF,LogPropHouseF,LogPropMajF,LogPropMedF,LogPropMoveF,LogPropOthF,LogPropRenewF,LogPropSmallF,LogPropVacF,LogPropWedF)
+proppurpdf <- as.table(proppurp)
+proppurpdf <- as.data.frame(proppurpdf)
+proppurpdf <- cbind(proppurpdf, logproppurp)
+# Graph the data
+purp_labels <- c("Car", "Credit_card", "Dept_Consilidation","Educational","Home_Improvement","House","Major_Purchase","Medical","Moving","Other","Renewable_energy","Small_Business","Vacation","Wedding") # Make labels for the box plots with purpose as a variable
+ppurpfail<-ggplot(proppurpdf, aes(x=Var1, y=Freq)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = purp_labels) +
+  labs(x = "Purpose",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+ppurpfail
+logppurpfail<-ggplot(proppurpdf, aes(x=Var1, y=logproppurp)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = purp_labels) +
+  labs(x = "Purpose",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+logppurpfail
+```
+
+```{r explore, include=TRUE}
+### Make plots for the 3 continuous variables vs repay failure and plots for colinearity
+RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failur of the x-axis
+
+#Box plot for loan_amount vs repay_fail
+ploanamount <- ggplot(data = All_loan_data,
+       mapping = aes(
+         x = factor(repay_fail),
+         y = loan_amnt,
+       )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Loan_amount")
+ploanamount
+
+#Box plot for int_rate vs repay_fail
+pinterestrate <- ggplot(data = All_loan_data,
+       mapping = aes(
+         x = factor(repay_fail),
+         y = int_rate,
+       )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Int_rate")
+pinterestrate 
+
+#Box plot for annual_inc vs repay_fail
+pannualincome <- ggplot(data = All_loan_data,
+       mapping = aes(
+         x = factor(repay_fail),
+         y = annual_inc,
+       )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Annual_inc")
+pannualincome
+
+# Test for colinarity 
+cortest <- ggpairs(All_loan_data, columns = c(1, 3, 6))
+cortest
+```
