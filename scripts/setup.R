@@ -1,8 +1,11 @@
+## Refresh R
 rm(list = ls())
 if (length((.packages())) > 7){
   invisible(lapply(paste0("package:", names(sessionInfo()$otherPkgs)),
                    detach,
                    character.only = TRUE, unload = TRUE))}
+
+# List of Required Packages
 
 pckgs <- c("tidyverse",
            "plotly",
@@ -18,6 +21,16 @@ pckgs <- c("tidyverse",
            "reshape2",
            "GGally",
            "dplyr",
-           "ggplot2")
+           "here")
 
+
+
+# Install Missing packages
+new.pckgs <- pckgs[!(pckgs %in% installed.packages()[,"Package"])]
+if(length(pckgs)>0) 
+  install.packages(new.packages)
+
+# Library packages
 lapply(pckgs, require, character.only = TRUE)
+
+
