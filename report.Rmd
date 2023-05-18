@@ -70,8 +70,9 @@ termfailsum <- count(loan_data_fail, term)
 
 # Obtain proportion and log(proportion) of failure in each term
 PropM36F <- termfailsum$n[1] / termsum$n[1]
-PropM60F <- termfailsum$n[1] / termsum$n[2]
-
+PropM60F <- termfailsum$n[2] / termsum$n[2]
+logPropM36F <- log(PropM36F)
+logPropM60F <- log(PropM60F)
 # Create data frame containing proportion and log(proportion) of failure in each term
 propterm <- c(PropM36F, PropM60F)
 logpropterm <- c(logPropM36F, logPropM60F)
@@ -80,7 +81,7 @@ proptermdf <- as.data.frame(proptermdf)
 proptermdf <- cbind(proptermdf, logpropterm)
 
 # Graph the data
-
+term_labels <- c("36 Months", "60 Months")
 ptermfail <- ggplot(proptermdf, aes(x=Var1, y=Freq)) + 
                 geom_dotplot(binaxis='y', stackdir='center') +
                 scale_x_discrete(labels = term_labels) +
@@ -91,7 +92,7 @@ logptermfail <- ggplot(proptermdf, aes(x=Var1, y=logpropterm)) +
                     scale_x_discrete(labels = term_labels) +
                     labs(x = "Term",y = "Repay Failure Log(Proportion)") 
 
-ggarrange(ptermfail,logptermfail)
+ptermfail;logptermfail
 ```
 
 
@@ -127,14 +128,14 @@ pempfail ; logpempfail
 ```{r}
 ## Plot the proportion and log proportion of failure for home_ownership
 # Obtain number of people in each home_ownership
-homesum <- summary(All_loan_data$home_ownership)
+homesum <- summary(all_loan_data$home_ownership)
 HomeMorg <- homesum[1]
 HomeNone <- homesum[2]
 HomeOther <- homesum[3]
 HomeOwn <- homesum[4]
 HomeRent <- homesum[5]
 # Obtain number of people that failed in each home_ownership
-homefail <- Loan_data_fail$home_ownership
+homefail <- loan_data_fail$home_ownership
 homefailsum <- summary(homefail)
 HomeMorgF <- homefailsum[1]
 HomeNoneF <- homefailsum[2]
@@ -173,12 +174,12 @@ logphomefail
 
 ## Plot the proportion and log proportion of failure for Verification_status
 # Obtain number of people in each verification_status
-verisum <- summary(All_loan_data$verification_status)
+verisum <- summary(all_loan_data$verification_status)
 NotVeri <- verisum[1]
 SouVeri <- verisum[2]
 Veri <- verisum[3]
 # Obtain number of people that failed in each Verification_status
-verifail <- Loan_data_fail$verification_status
+verifail <- loan_data_fail$verification_status
 verifailsum <- summary(verifail)
 NotVeriF <- verifailsum[1]
 SouVeriF <- verifailsum[2]
@@ -211,7 +212,7 @@ logpverifail
 
 ## Plot the proportion and log proportion of failure for purpose
 # Obtain number of people in each purpose
-purpsum <- summary(All_loan_data$purpose)
+purpsum <- summary(all_loan_data$purpose)
 Car <- purpsum[1]
 Cred <- purpsum[2]
 Dept <- purpsum[3]
@@ -227,7 +228,7 @@ Small <- purpsum[12]
 Vac <- purpsum[13]
 Wed <- purpsum[14]
 # Obtain number of people that failed in each purpose
-purpfail <- Loan_data_fail$purpose
+purpfail <- loan_data_fail$purpose
 purpfailsum <- summary(purpfail)
 CarF <- purpfailsum[1]
 CredF <- purpfailsum[2]
@@ -299,7 +300,7 @@ logppurpfail
 RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failur of the x-axis
 
 #Box plot for loan_amount vs repay_fail
-ploanamount <- ggplot(data = All_loan_data,
+ploanamount <- ggplot(data = all_loan_data,
        mapping = aes(
          x = factor(repay_fail),
          y = loan_amnt,
@@ -311,7 +312,7 @@ ploanamount <- ggplot(data = All_loan_data,
 ploanamount
 
 #Box plot for int_rate vs repay_fail
-pinterestrate <- ggplot(data = All_loan_data,
+pinterestrate <- ggplot(data = all_loan_data,
        mapping = aes(
          x = factor(repay_fail),
          y = int_rate,
@@ -323,7 +324,7 @@ pinterestrate <- ggplot(data = All_loan_data,
 pinterestrate 
 
 #Box plot for annual_inc vs repay_fail
-pannualincome <- ggplot(data = All_loan_data,
+pannualincome <- ggplot(data = all_loan_data,
        mapping = aes(
          x = factor(repay_fail),
          y = annual_inc,
@@ -335,6 +336,36 @@ pannualincome <- ggplot(data = All_loan_data,
 pannualincome
 
 # Test for colinarity 
-cortest <- ggpairs(All_loan_data, columns = c(1, 3, 6))
+cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
 cortest
+```
+```{r exploreext data set, include=TRUE}
+## Plot the proportion and log proportion of failure for issue_d
+
+# Obtain number of people in each issue_d
+issuedsum <- count(ext_loan_data, issue_d, .drop = FALSE)
+
+# Obtain number of people that failed in each issue_d
+ext_issued_fail <- count(ext_loan_data, issue_d, repay_fail == "1")
+ext_issued_fail <- filter(ext_loan_data, repay_fail == "1")
+issuedfailsumext <- count(ext_loan_data_fail, issue_d, .drop = FALSE)
+
+# Obtain proportion and log(proportion) of failure in each issue_d
+prop_issue_d <- issuedfailsumext[,2] / issuedsum[,2]
+
+# Obtain proportion and log(proportion) of failure in each issue_d
+prop_issue_d_log <- sapply(prop_issue_d, log)
+propissueddf <- data.frame(issue_d = issuedsum$issue_d, frequency = prop_issue_d, log_frequency = prop_issue_d_log )
+
+pissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = propissueddf$issue_d) +
+  labs(x = "issue_d",y = "Repay Failure Proportion") 
+
+logpissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = propissueddf$issue_d) +
+  labs(x = "issue_d",y = "Repay Failure Log(Proportion)") 
+
+pissuedfail ; logpissuedfail
 ```
