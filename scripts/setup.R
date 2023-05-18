@@ -28,8 +28,8 @@ pckgs <- c("tidyverse",
 
 # Install Missing packages
 new.pckgs <- pckgs[!(pckgs %in% installed.packages()[,"Package"])]
-if(length(pckgs)>0) 
-  install.packages(new.packages)
+if(length(new.pckgs)>0) 
+  install.packages(new.pckgs)
 
 # Library packages
 lapply(pckgs, require, character.only = TRUE)
