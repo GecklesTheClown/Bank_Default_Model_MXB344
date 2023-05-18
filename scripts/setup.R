@@ -21,7 +21,8 @@ pckgs <- c("tidyverse",
            "reshape2",
            "GGally",
            "dplyr",
-           "here")
+           "here",
+           "ggarrange")
 
 
 
