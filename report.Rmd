@@ -182,12 +182,20 @@ pissuedfail ; logpissuedfail
 
 # Obtain number of people in each zip_code
 zipcsum <- count(ext_loan_data, zip_code, .drop = FALSE)
+
 # Obtain number of people that failed in each zip_code
 ext_zipc_fail <- count(ext_loan_data, zip_code, repay_fail == "1", .drop = FALSE)
-ext_zipc_fail <- filter(ext_zipc_fail, ext_zipc_fail$`repay_fail == "1"` == "FALSE")
+ext_zipc_fail <- filter(ext_zipc_fail, ext_zipc_fail$`repay_fail == "1"` == "TRUE")
+ext_zipc_fail$`repay_fail == "1"` <- NULL
+ext_zipc_fail2 <- anti_join(zipcsum, ext_zipc_fail, by = c("zip_code" = "zip_code"))
+ext_zipc_fail2$n <- 0
+ext_zipc_fail <- rbind(ext_zipc_fail, ext_zipc_fail2)
+ext_zipc_fail$zip_code <- gsub("xx","",as.character(ext_zipc_fail$zip_code))
+ext_zipc_fail <- ext_zipc_fail[order(as.integer(ext_zipc_fail$zip_code),decreasing = FALSE), ]
+ext_zipc_fail$zip_code <- paste0(ext_zipc_fail$zip_code, 'xx')
 
 # Obtain proportion and log(proportion) of failure in each zip_code
-prop_zip_code <- zipcfailsumext[,2] / zipcsum[,2]
+prop_zip_code <- ext_zipc_fail[,2] / zipcsum[,2]
 
 # Obtain proportion and log(proportion) of failure in each zip_code
 prop_zip_code_log <- sapply(prop_zip_code, log)
