@@ -131,11 +131,19 @@ issuedsum <- count(ext_loan_data, issue_d, .drop = FALSE)
 
 # Obtain number of people that failed in each issue_d
 ext_issued_fail <- count(ext_loan_data, issue_d, repay_fail == "1")
-ext_issued_fail <- filter(ext_loan_data, repay_fail == "1")
-issuedfailsumext <- count(ext_loan_data_fail, issue_d, .drop = FALSE)
+ext_missingrowIF <- c("Jun-2007", "TRUE", "0")
+ext_issued_fail <- rbind(ext_issued_fail, ext_missingrowIF)
+ext_issued_fail <- t(ext_issued_fail)
+ext_issued_fail <- as.data.frame(ext_issued_fail)
+ext_issued_fail <- relocate(ext_issued_fail, V110, .after = V55)
+ext_issued_fail <- t(ext_issued_fail)
+ext_issued_fail <- as.data.frame(ext_issued_fail)
+ext_issued_fail$`repay_fail == "1"` <- as.logical(ext_issued_fail$`repay_fail == "1"`)
+ext_issued_fail$n <- as.numeric(ext_issued_fail$n)
+issuedfailsumext <- filter(ext_issued_fail, ext_issued_fail$`repay_fail == "1"` == "FALSE")
 
 # Obtain proportion and log(proportion) of failure in each issue_d
-prop_issue_d <- issuedfailsumext[,2] / issuedsum[,2]
+prop_issue_d <- issuedfailsumext[,3] / issuedsum[,2]
 
 # Obtain proportion and log(proportion) of failure in each issue_d
 prop_issue_d_log <- sapply(prop_issue_d, log)
