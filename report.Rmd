@@ -121,7 +121,7 @@ cortest
 ```
 
 
-## Extended Model 
+ ## Extended Model 
 
 ```{r exploreext data set, include=TRUE}
 ## Plot the proportion and log proportion of failure for issue_d
