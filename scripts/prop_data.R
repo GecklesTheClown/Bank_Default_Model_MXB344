@@ -30,6 +30,7 @@ empfailsum <- count(loan_data_fail, emp_length)
 
 # Obtain proportion and log(proportion) of failure in each emp_length
 prop_emp_length <- empfailsum[,2] / empsum[,2]
+prop_emp_length_log <- lapply(prop_emp_length, log)
 
 # Obtain proportion and log(proportion) of failure in each emp_length
 
