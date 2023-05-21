@@ -31,26 +31,41 @@ Since this model is made to predict the chance of a given customer defaulting at
 -   "pub_rec"
 -   "open_acc"
 -   "total_acc"
--   "total_int"
--   "total-prncp"
+-   "total_rec_int"
+-   "total_rec_prncp"
 -   "revol_bal"
 -   "revol_util"
 
 Thus removing these covariates leaves us with 5 categorical variables and 3 continuous variables.
 
+- 
+
 ```{r}
-
-# Make all categorical variables into factors for R 
-#(hashed out counts just in case we do want some counts as categorical variables)
-
-all_cat_var <- c("term",
+app_cov <- c("loan_amnt","term","int_rate","emp_length","home_ownership","annual_inc","verification_status","purpose","repay_fail")
+all_loan_data <- all_loan_data[,app_cov]
+all_cat_var <- c("repay_fail",
+                 "term",
                  "emp_length",
                  "home_ownership", 
                  "verification_status", 
                  "purpose")
 
 all_loan_data[,all_cat_var] <- lapply(all_loan_data[all_cat_var], factor)
-lapply(all_loan_data[all_cat_var],levels)
+lapply(all_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
+```
+
+
+```{r}
+m.initial <- glm(repay_fail ~. , family = binomial, data = all_loan_data)
+
+test <- glm(repay_fail ~1 , family = binomial, data = all_loan_data, trace = FALSE)
+
+m.step.both.1w <- step(m.initial, direction = "backward", trace = 0)
+
+res = simulateResiduals(m.step.both.1w)
+plot(res)
+
+
 ```
 
 Let's take a look at the data.
@@ -68,7 +83,7 @@ source(here("scripts","prop_data.r"))
 Plot these 
 
 ```{r}
-graph_pempfail; graph_logpempfail ; graph_ptermfail ; graph_logptermfail ; graph_phomefail ; graph_logphomefail
+graph_pempfail; graph_logpempfail ; graph_ptermfail ; graph_logptermfail ; graph_phomefail ; graph_logphomefail 
 
 ```
 
