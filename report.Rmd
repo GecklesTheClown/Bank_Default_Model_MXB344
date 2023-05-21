@@ -123,7 +123,7 @@ cortest
 
 ## Extended Model 
 
-```{r exploreext data set, include=TRUE}
+```{r exploreext data set issue_d, include=TRUE}
 ## Plot the proportion and log proportion of failure for issue_d
 
 # Obtain number of people in each issue_d
@@ -140,7 +140,7 @@ ext_issued_fail <- t(ext_issued_fail)
 ext_issued_fail <- as.data.frame(ext_issued_fail)
 ext_issued_fail$`repay_fail == "1"` <- as.logical(ext_issued_fail$`repay_fail == "1"`)
 ext_issued_fail$n <- as.numeric(ext_issued_fail$n)
-issuedfailsumext <- filter(ext_issued_fail, ext_issued_fail$`repay_fail == "1"` == "FALSE")
+issuedfailsumext <- filter(ext_issued_fail, ext_issued_fail$`repay_fail == "1"` == "TRUE")
 
 # Obtain proportion and log(proportion) of failure in each issue_d
 prop_issue_d <- issuedfailsumext[,3] / issuedsum[,2]
@@ -160,4 +160,72 @@ logpissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=log_frequency)) +
   labs(x = "issue_d",y = "Repay Failure Log(Proportion)") 
 
 pissuedfail ; logpissuedfail
+```
+
+```{r exploreext data set zip_code, include=TRUE}
+## Plot the proportion and log proportion of failure for zip_code
+
+# Obtain number of people in each zip_code
+zipcsum <- count(ext_loan_data, zip_code, .drop = FALSE)
+# Obtain number of people that failed in each zip_code
+ext_zipc_fail <- count(ext_loan_data, zip_code, repay_fail == "1", .drop = FALSE)
+ext_zipc_fail <- filter(ext_zipc_fail, ext_zipc_fail$`repay_fail == "1"` == "FALSE")
+
+# Obtain proportion and log(proportion) of failure in each zip_code
+prop_zip_code <- zipcfailsumext[,2] / zipcsum[,2]
+
+# Obtain proportion and log(proportion) of failure in each zip_code
+prop_zip_code_log <- sapply(prop_zip_code, log)
+propzipcdf <- data.frame(zip_code = zipcsum$zip_code, frequency = prop_zip_code, log_frequency = prop_zip_code_log )
+
+pzipcfail <- ggplot(propzipcdf, aes(x=zip_code, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = propzipcdf$zip_code) +
+  labs(x = "zip_code",y = "Repay Failure Proportion") 
+
+logpzipcfail <- ggplot(propzipcdf, aes(x=zip_code, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = propzipcdf$zip_code) +
+  labs(x = "zip_code",y = "Repay Failure Log(Proportion)") 
+
+pzipcfail ; logpzipcfail
+```
+
+```{r exploreext data set addr_state, include=TRUE}
+## Plot the proportion and log proportion of failure for addr_state
+
+# Obtain number of people in each addr_state
+addssum <- count(ext_loan_data, addr_state, .drop = FALSE)
+
+# Obtain number of people that failed in each addr_state
+ext_adds_fail <- count(ext_loan_data, addr_state, repay_fail == "1")
+ext_missingrowAF <- c("ME", "TRUE", "0")
+ext_adds_fail <- rbind(ext_adds_fail, ext_missingrowAF)
+ext_adds_fail <- t(ext_adds_fail)
+ext_adds_fail <- as.data.frame(ext_adds_fail)
+ext_adds_fail <- relocate(ext_adds_fail, V100, .after = V43)
+ext_adds_fail <- t(ext_adds_fail)
+ext_adds_fail <- as.data.frame(ext_adds_fail)
+ext_adds_fail$`repay_fail == "1"` <- as.logical(ext_adds_fail$`repay_fail == "1"`)
+ext_adds_fail$n <- as.numeric(ext_adds_fail$n)
+addsfailsumext <- filter(ext_adds_fail, ext_adds_fail$`repay_fail == "1"` == "TRUE")
+
+# Obtain proportion and log(proportion) of failure in each addr_state
+prop_addr_state <- addsfailsumext[,3] / addssum[,2]
+
+# Obtain proportion and log(proportion) of failure in each addr_state
+prop_addr_state_log <- sapply(prop_addr_state, log)
+propaddsdf <- data.frame(addr_state = addssum$addr_state, frequency = prop_addr_state, log_frequency = prop_addr_state_log )
+
+paddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = propaddsdf$addr_state) +
+  labs(x = "addr_state",y = "Repay Failure Proportion") 
+
+logpaddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = propaddsdf$addr_state) +
+  labs(x = "addr_state",y = "Repay Failure Log(Proportion)") 
+
+paddsfail ; logpaddsfail
 ```
