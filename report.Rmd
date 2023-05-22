@@ -369,12 +369,14 @@ propissueddf <- data.frame(issue_d = issuedsum$issue_d, frequency = prop_issue_d
 pissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure Proportion") 
+  labs(x = "issue_d",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 logpissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=log_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure Log(Proportion)") 
+  labs(x = "issue_d",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 pissuedfail ; logpissuedfail
 ```
@@ -445,12 +447,14 @@ propaddsdf <- data.frame(addr_state = addssum$addr_state, frequency = prop_addr_
 paddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure Proportion") 
+  labs(x = "addr_state",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 logpaddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=log_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure Log(Proportion)") 
+  labs(x = "addr_state",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 paddsfail ; logpaddsfail
 ```
