@@ -559,6 +559,7 @@ logpaddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=log_frequency)) +
   theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 paddsfail ; logpaddsfail
+<<<<<<< HEAD
 
 ### Plot the proportion and log proportion of failure for each variable in addr_state
 
@@ -603,3 +604,100 @@ for(i in 1:9){
   plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc")
 }
 ```
+=======
+```
+## Model Building
+```{r M-Build, message=FALSE, cache=TRUE}
+drop<-c("credit_age_yrs",
+        "delinq_2yrs",
+        "dti",
+        "inq_last_6mths",
+        "last_pymnt_amnt",
+        "pub_rec",
+        "open_acc",
+        "total_acc",
+        "total_int",
+        "total-prncp",
+        "revol_bal",
+        "revol_util",
+        "total_rec_int",
+        "total_rec_prncp")
+#Full model with all possible interactions for backwards selection:
+full_interaction_model <- glm(data = all_loan_data_edit,
+                              formula = repay_fail ~ . ,
+                              family = binomial)
+
+#Model with no variables present for forwards selection:
+null_model <- glm(data = all_loan_data_edit,
+                  formula = repay_fail ~ 1,
+                  family = binomial)
+
+#Perform backward and forward selection:
+backward_sel_model <- stepAIC(
+  full_interaction_model,direction = "backward",trace = 0)
+forward_sel_model <- stepAIC(
+  null_model,
+  scope = formula(full_interaction_model), 
+  direction = "forward",
+  trace = 0) ## trace = 0 prevents automatic output of stepAIC function.
+forward_sel_model$formula
+summary(forward_sel_model)
+backward_sel_model$formula
+summary(backward_sel_model)
+m1<-glm(formula = repay_fail ~ int_rate + annual_inc + 
+          term, 
+        family = binomial, data = all_loan_data_edit)
+summary(m1)
+#forward_sel_residuals<-simulateResiduals(forward_sel_model)
+#m1_residuals<-simulateResiduals(m1)
+
+#Plot observed quantile versus expected quantile to assess distribution fit, and predicted value versus standardised residuals for unmodelled pattern in the residuals.
+#plot(poisson_residuals)
+# a boxplot totest for uniformity per box, and a test for homgeneity of variances between boxes. A positive test will be highlighted in red. Used just for interest, Also a test to check outliers,uniformtiy and dispersion
+
+#plot(m1_residuals)
+#plot_summs(forward_sel_model)
+```
+## Assessing model
+```{r, Testing model message=FALSE, cache=TRUE}
+predicted_values <- predict(forward_sel_model, type = 'response', newdata = training_loan_data)
+plot(predicted_values)
+predicted_values_vali <- predict(forward_sel_model, type = 'response', newdata = validation_loan_data)
+plot(predicted_values_vali)
+predicted_values_m1 <- predict(m1, type = 'response', newdata = training_loan_data)
+plot(predicted_values_m1)
+git config pull.rebase false
+```
+## Model performance
+```{r, model-per message=FALSE, cache=TRUE}
+install.packages("ROCR")
+library(ROCR)
+install.packages("gmodels")
+library(gmodels)
+pred <- prediction(predicted_values, training_loan_data$repay_fail)
+roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+pred_vali <- prediction(predicted_values_vali, validation_loan_data$repay_fail)
+roc.perf = performance(pred_vali, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+auc.perf = performance(pred, measure = "auc")
+auc.perf@y.values
+auc.perf = performance(pred_vali, measure = "auc")
+auc.perf@y.values
+acc.perf = performance(pred, measure = "acc")
+plot(acc.perf)
+acc.perf_vali = performance(pred_vali, measure = "acc")
+plot(acc.perf_vali)
+ind = which.max( slot(acc.perf, "y.values")[[1]] )
+acc = slot(acc.perf, "y.values")[[1]][ind]
+cutoff = slot(acc.perf, "x.values")[[1]][ind]
+print(c(accuracy= acc, cutoff = cutoff))
+
+# Creating a confusion matrix
+confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
+
+```
+
+>>>>>>> 1809e38e0b3a3ed139267b819659e0b8c8ff31f6
