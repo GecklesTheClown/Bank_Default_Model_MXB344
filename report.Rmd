@@ -134,8 +134,39 @@ pannualincome
 cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
 cortest
 ```
+```{r exploreall data set logistic (for 3 continous variables), include=TRUE}
+### Do logistic exploration for all_loan_data
+## Explore relationship between log(p/(1-p)) for loan_amnt
+xa1 <- all_loan_data$loan_amnt
+ya <- all_loan_data$repay_fail
+ya <- as.integer(ya)
+ya[ya == 1] <- 0
+ya[ya == 2] <- 1
+gala <- cut(xa1, breaks=quantile(xa1,seq(0,100,5)/100))
+yamla <- tapply(ya, gala, mean)
+xamla <- tapply(xa1, gala, mean)
+yampla <- log(yamla/(1-yamla))
+plot(xamla,yampla,xlab="loan_amnt")
+
+## Explore relationship between log(p/(1-p)) for int_rate
+xa2 <- all_loan_data$int_rate
+gair <- cut(xa2, breaks=quantile(xa2,seq(0,100,5)/100))
+yamir <- tapply(ya, gair, mean)
+xamir <- tapply(xa2, gair, mean)
+yampir <- log(yamir/(1-yamir))
+plot(xamir,yampir,xlab="int_rate")
+
+## Explore relationship between log(p/(1-p)) for annual_inc
+xa3 <- all_loan_data$annual_inc
+gaai <- cut(xa3, breaks=quantile(xa3,seq(0,100,5)/100))
+yamai <- tapply(ya, gaai, mean)
+xamai <- tapply(xa3, gaai, mean)
+yampai <- log(yamai/(1-yamai))
+plot(xamai,yampai,xlab="annual_inc")
+```
 
 ```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
+### Do logistic exploration for ext_loan_data
 ## Explore relationship between log(p/(1-p)) for loan_amnt
 x1 <- ext_loan_data$loan_amnt
 y <- ext_loan_data$repay_fail
@@ -147,7 +178,6 @@ plot(xmla,ympla,xlab="loan_amnt")
 
 ## Explore relationship between log(p/(1-p)) for int_rate
 x2 <- ext_loan_data$int_rate
-y <- ext_loan_data$repay_fail
 gir <- cut(x2, breaks=quantile(x2,seq(0,100,5)/100))
 ymir <- tapply(y, gir, mean)
 xmir <- tapply(x2, gir, mean)
@@ -156,7 +186,6 @@ plot(xmir,ympir,xlab="int_rate")
 
 ## Explore relationship between log(p/(1-p)) for annual_inc
 x3 <- ext_loan_data$annual_inc
-y <- ext_loan_data$repay_fail
 gai <- cut(x3, breaks=quantile(x3,seq(0,100,5)/100))
 ymai <- tapply(y, gai, mean)
 xmai <- tapply(x3, gai, mean)
