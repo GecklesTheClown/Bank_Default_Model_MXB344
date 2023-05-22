@@ -135,6 +135,34 @@ cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
 cortest
 ```
 
+```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
+## Explore relationship between log(p/(1-p)) for loan_amnt
+x1 <- ext_loan_data$loan_amnt
+y <- ext_loan_data$repay_fail
+gla <- cut(x1, breaks=quantile(x1,seq(0,100,5)/100))
+ymla <- tapply(y, gla, mean)
+xmla <- tapply(x1, gla, mean)
+ympla <- log(ymla/(1-ymla))
+plot(xmla,ympla,xlab="loan_amnt")
+
+## Explore relationship between log(p/(1-p)) for int_rate
+x2 <- ext_loan_data$int_rate
+y <- ext_loan_data$repay_fail
+gir <- cut(x2, breaks=quantile(x2,seq(0,100,5)/100))
+ymir <- tapply(y, gir, mean)
+xmir <- tapply(x2, gir, mean)
+ympir <- log(ymir/(1-ymir))
+plot(xmir,ympir,xlab="int_rate")
+
+## Explore relationship between log(p/(1-p)) for annual_inc
+x3 <- ext_loan_data$annual_inc
+y <- ext_loan_data$repay_fail
+gai <- cut(x3, breaks=quantile(x3,seq(0,100,5)/100))
+ymai <- tapply(y, gai, mean)
+xmai <- tapply(x3, gai, mean)
+ympai <- log(ymai/(1-ymai))
+plot(xmai,ympai,xlab="annual_inc")
+```
 
  ## Extended Model 
 ```{r exploreext data set 5 catagorical variables, include=TRUE}
