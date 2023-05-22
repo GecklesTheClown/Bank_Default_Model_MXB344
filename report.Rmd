@@ -137,6 +137,208 @@ cortest
 
 
  ## Extended Model 
+```{r exploreext data set 5 catagorical variables, include=TRUE}
+## term
+
+# Obtain number of people in each term
+exttermsum <- count(ext_loan_data, term)
+
+# Obtain number of people that failed in each term
+ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
+exttermfailsum <- count(ext_loan_data_fail, term)
+
+# Obtain proportion and log(proportion) of failure in each term
+extprop_term <- exttermfailsum[,2] / exttermsum[,2]
+extprop_term_log <- log(extprop_term)
+
+# Obtain proportion and log(proportion) of failure in each term
+extproptermdf <- data.frame(term = exttermsum$term, frequency = extprop_term, log_frequency = extprop_term_log)
+
+# Graph for ext term
+graph_extptermfail <- ggplot(extproptermdf, aes(x=term, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extproptermdf$term) +
+  labs(x = "term",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extlogptermfail <- ggplot(extproptermdf, aes(x=term, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extproptermdf$term) +
+  labs(x = "term",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extptermfail ; graph_extlogptermfail
+
+## Emp_length
+
+# Obtain number of people in each emp_length
+extempsum <- count(ext_loan_data, emp_length)
+
+# Obtain number of people that failed in each emp_length
+ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
+extempfailsum <- count(ext_loan_data_fail, emp_length)
+
+# Obtain proportion and log(proportion) of failure in each emp_length
+extprop_emp_length <- extempfailsum[,2] / extempsum[,2]
+extprop_emp_length_log <- log(extprop_emp_length)
+
+# Obtain proportion and log(proportion) of failure in each emp_length
+extpropempdf <- data.frame(emp_length = extempsum$emp_length, frequency = extprop_emp_length, log_frequency = extprop_emp_length_log)
+
+# Graph for ext emp_length
+graph_extpempfail <- ggplot(extpropempdf, aes(x=emp_length, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extpropempdf$emp_length) +
+  labs(x = "Emp_Length",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extlogpempfail <- ggplot(extpropempdf, aes(x=emp_length, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extpropempdf$emp_length) +
+  labs(x = "Emp_length",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extpempfail ; graph_extlogpempfail
+
+## home_ownership
+
+# Obtain number of people in each home_ownership
+exthomesum <- count(ext_loan_data, home_ownership)
+
+# Obtain number of people that failed in each home_ownership
+ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
+exthomefailsum <- count(ext_loan_data_fail, home_ownership)
+
+# Obtain proportion and log(proportion) of failure in each home_ownership
+extprop_home_ownership <- exthomefailsum[,2] / exthomesum[,2]
+extprop_home_ownership_log <- log(extprop_home_ownership)
+
+# Obtain proportion and log(proportion) of failure in each home_ownership
+extprophomedf <- data.frame(home_ownership = exthomesum$home_ownership, frequency = extprop_home_ownership, log_frequency = extprop_home_ownership_log)
+
+# Graph for ext home_ownership
+graph_extphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extprophomedf$home_ownership) +
+  labs(x = "home_ownership",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extlogphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extprophomedf$home_ownership) +
+  labs(x = "home_ownership",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extphomefail ; graph_extlogphomefail
+
+## verification_status
+
+# Obtain number of people in each verification_status
+extverisum <- count(ext_loan_data, verification_status)
+
+# Obtain number of people that failed in each verification_status
+ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
+extverifailsum <- count(ext_loan_data_fail, verification_status)
+
+# Obtain proportion and log(proportion) of failure in each verification_status
+extprop_verification_status <- extverifailsum[,2] / extverisum[,2]
+extprop_verification_status_log <- log(extprop_verification_status)
+
+# Obtain proportion and log(proportion) of failure in each verification_status
+extpropveridf <- data.frame(verification_status = extverisum$verification_status, frequency = extprop_verification_status, log_frequency = extprop_verification_status_log)
+
+# Graph for ext verification_status
+graph_extpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extpropveridf$verification_status) +
+  labs(x = "verification_status",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extlogpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extpropveridf$verification_status) +
+  labs(x = "verification_status",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extpverifail ; graph_extlogpverifail
+
+## purpose
+
+# Obtain number of people in each purpose
+extpurpsum <- count(ext_loan_data, purpose)
+
+# Obtain number of people that failed in each purpose
+ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
+extpurpfailsum <- count(ext_loan_data_fail, purpose)
+
+# Obtain proportion and log(proportion) of failure in each purpose
+extprop_purpose <- extpurpfailsum[,2] / extpurpsum[,2]
+extprop_purpose_log <- log(extprop_purpose)
+
+# Obtain proportion and log(proportion) of failure in each purpose
+extproppurpdf <- data.frame(purpose = extpurpsum$purpose, frequency = extprop_purpose, log_frequency = extprop_purpose_log)
+
+# Graph for ext purpose
+graph_extppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extproppurpdf$purpose) +
+  labs(x = "purpose",y = "Repay Failure Proportion") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extlogppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=log_frequency)) + 
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_x_discrete(labels = extproppurpdf$purpose) +
+  labs(x = "purpose",y = "Repay Failure Log(Proportion)") +
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
+
+graph_extppurpfail ; graph_extlogppurpfail
+```
+
+```{r exploreext data set 3 continous variables, include=TRUE}
+### Make plots for the 3 continuous variables vs repay failure and plots for colinearity in the extended data set (since there are extra observations)
+
+RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failure of the x-axis
+
+#Box plot for loan_amount vs repay_fail for extended data set
+pextloanamount <- ggplot(data = ext_loan_data,
+                         mapping = aes(
+                           x = factor(repay_fail),
+                           y = loan_amnt,
+                         )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Loan_amount")
+pextloanamount
+
+#Box plot for int_rate vs repay_fail
+pextinterestrate <- ggplot(data = ext_loan_data,
+                        mapping = aes(
+                          x = factor(repay_fail),
+                          y = int_rate,
+                        )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Int_rate")
+pextinterestrate 
+
+#Box plot for annual_inc vs repay_fail
+pextannualincome <- ggplot(data = ext_loan_data,
+                        mapping = aes(
+                          x = factor(repay_fail),
+                          y = annual_inc,
+                        )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Annual_inc")
+pextannualincome
+
+# Test for colinarity 
+cortest <- ggpairs(ext_loan_data, columns = c(2, 4, 7))
+cortest
+```
 
 ```{r exploreext data set issue_d, include=TRUE}
 ## Plot the proportion and log proportion of failure for issue_d
