@@ -71,6 +71,80 @@ graph_pempfail; graph_logpempfail ; graph_ptermfail ; graph_logptermfail ; graph
 
 
 
+## Model Selection
+
+```{r}
+#Initialize the Models
+
+m.full.1w.log <- glm(data = all_loan_data,
+                     formula = repay_fail ~.,
+                     family = binomial(link = "logit"))
+                
+  
+m.full.1w.pro <- glm(data = all_loan_data,
+                     formula = repay_fail ~.,
+                     family = binomial(link = "probit"))
+
+m.full.1w.clog <- glm(data = all_loan_data,
+                     formula = repay_fail ~.,
+                     family = binomial(link = "cloglog"))
+
+#Stepwise Regression
+
+
+m.step.both.1w.log <- step(m.full.1w.log, direction = "both", trace = 0)
+m.step.both.1w.pro <- step(m.full.1w.pro, direction = "both", trace = 0)
+m.step.both.1w.clog <- step(m.full.1w.clog, direction = "both", trace = 0)
+
+models <- c(m.step.both.1w.log,m.step.both.1w.pro,m.step.both.1w.clog)
+
+model.list <- list(
+  "log" = m.step.both.1w.log,
+  "pro" = m.step.both.1w.pro,
+  "cloglog" = m.step.both.1w.clog)
+
+bics <- sapply(model.list,FUN = BIC)
+
+plot_data <- 
+  data.frame(
+    model = c("log","pro","cloglog"),
+    bic = bics)
+
+#Display table with measures:
+knitr::kable(plot_data,row.names = FALSE,
+             col.names = c("Model","BIC"))
+
+
+```
+Our Probit came out the best
+
+
+```{r}
+m.initial <- m.full.1w.pro
+
+
+anova(m.initial, test="Chisq")
+pchisq(m.initial$deviance, df=m.initial$df.residual, lower.tail=FALSE)
+res.initial = simulateResiduals(m.initial)
+plot(res.initial)
+
+pred <- predict(m.initial)
+pred <- exp(pred)/(1+exp(pred))
+plot(all_loan_data$repay_fail,pred,ylim=c(0,1.1),
+xlim=c(0,1.1),ylab=
+"Predicted"
+,xlab=
+"Observed")
+points(c(0,2),c(0,2),type=
+"l")
+```
+
+
+# Part 2: Mixed Effects Model
+
+```{r data, include=TRUE}
+ext_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv'))  # Load in the extended loan data with time and regions
+
 ```{r explore, include=TRUE}
 ### Make plots for the 3 continuous variables vs repay failure and plots for colinearity
 
@@ -147,11 +221,7 @@ yampai <- log(yamai/(1-yamai))
 plot(xamai,yampai,xlab="annual_inc")
 ```
 
-# Part 2: Mixed Effects Model
-
-```{r data, include=TRUE}
-ext_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv'))  # Load in the extended loan data with time and regions
-## Extended Model 
+ ## Extended Model 
 ```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
 ### Do logistic exploration for ext_loan_data
 ## Explore relationship between log(p/(1-p)) for loan_amnt
@@ -381,7 +451,6 @@ pextannualincome
 # Test for colinarity 
 cortest <- ggpairs(ext_loan_data, columns = c(2, 4, 7))
 cortest
->>>>>>> 1c965322079901b1c294b13f45750e64c79a569a
 ```
 
 ```{r exploreext data set issue_d, include=TRUE}
@@ -591,8 +660,8 @@ for(i in 1:9){
   plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc")
 }
 ```
-
-
+=======
+```
 ## Model Building
 ```{r M-Build, message=FALSE, cache=TRUE}
 drop<-c("credit_age_yrs",
@@ -645,7 +714,6 @@ summary(m1)
 #plot(m1_residuals)
 #plot_summs(forward_sel_model)
 ```
-
 ## Assessing model
 ```{r, Testing model message=FALSE, cache=TRUE}
 predicted_values <- predict(forward_sel_model, type = 'response', newdata = training_loan_data)
