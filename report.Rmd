@@ -528,15 +528,15 @@ m1<-glm(formula = repay_fail ~ int_rate + annual_inc +
           term, 
         family = binomial, data = all_loan_data_edit)
 summary(m1)
-#forward_sel_residuals<-simulateResiduals(forward_sel_model)
-#m1_residuals<-simulateResiduals(m1)
+forward_sel_residuals<-simulateResiduals(forward_sel_model)
+m1_residuals<-simulateResiduals(m1)
 
 #Plot observed quantile versus expected quantile to assess distribution fit, and predicted value versus standardised residuals for unmodelled pattern in the residuals.
 #plot(poisson_residuals)
 # a boxplot totest for uniformity per box, and a test for homgeneity of variances between boxes. A positive test will be highlighted in red. Used just for interest, Also a test to check outliers,uniformtiy and dispersion
 
-#plot(m1_residuals)
-#plot_summs(forward_sel_model)
+plot(m1_residuals)
+plot_summs(forward_sel_model)
 ```
 ## Assessing model
 ```{r, Testing model message=FALSE, cache=TRUE}
@@ -546,7 +546,6 @@ predicted_values_vali <- predict(forward_sel_model, type = 'response', newdata =
 plot(predicted_values_vali)
 predicted_values_m1 <- predict(m1, type = 'response', newdata = training_loan_data)
 plot(predicted_values_m1)
-git config pull.rebase false
 ```
 ## Model performance
 ```{r, model-per message=FALSE, cache=TRUE}
