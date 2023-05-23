@@ -5,7 +5,10 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-# Part 1 : Fixed Effects Model
+# Introduction 
+
+
+# Part 1 : Fixed Effects Model 
 
 This chunk is to refresh R studio and library the required packages.
 
@@ -659,8 +662,7 @@ for(i in 1:9){
   plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc")
 }
 ```
-=======
-```
+
 ## Model Building
 ```{r M-Build, message=FALSE, cache=TRUE}
 drop<-c("credit_age_yrs",
@@ -723,6 +725,8 @@ predicted_values_m1 <- predict(m1, type = 'response', newdata = training_loan_da
 plot(predicted_values_m1)
 git config pull.rebase false
 ```
+
+
 ## Model performance
 ```{r, model-per message=FALSE, cache=TRUE}
 install.packages("ROCR")
