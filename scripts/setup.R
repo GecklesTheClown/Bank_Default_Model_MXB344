@@ -24,7 +24,13 @@ pckgs <- c("tidyverse",
            "here",
            "gmodels",
            "ROCR",
-           "glmm")
+           "glmm",
+           "pROC",
+           "parallel",
+           "boot",
+           "lattice",
+           "grid",
+           "png")
 
 
 
