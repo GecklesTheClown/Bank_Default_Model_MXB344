@@ -789,17 +789,12 @@ confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
 # Part 2: Mixed Effects Model
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
-library('pROC')
-library(png)
-library(grid)
-require(ggplot2)
-require(GGally)
-require(reshape2)
-require(lme4)
-require(compiler)
-require(parallel)
-require(boot)
-require(lattice)
+
+cont_var <- c("int_rate","annual_inc")
+scale_1 <- scale(extended_loan_data$int_rate)
+scale_2 <- scale(extended_loan_data$annual_inc)
+extended_loan_data$int_rate <- scale_1
+extended_loan_data$int_rate <- scale_2
 
 m <- glmer(repay_fail ~ int_rate + term + emp_length + purpose + verification_status + annual_inc + home_ownership +
     (1 | addr_state) + (1|issue_d), data = extended_loan_data, family = binomial, control = glmerControl(optimizer = "bobyqa"))
