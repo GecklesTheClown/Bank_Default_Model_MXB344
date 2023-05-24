@@ -822,7 +822,7 @@ m <- glmer(repay_fail ~
              purpose + 
              verification_status + 
              home_ownership + 
-             annual_inc +
+             annual_inc +  
              (1 |addr_state) + 
              (1|issue_d), 
            data = extended_loan_data, 
@@ -848,3 +848,18 @@ auc.perf@y.values
 
 plot_summs(forward_sel_model,m, rescale.distributions = TRUE, exp=TRUE)
 ```
+
+```{r}
+test <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc + 
+              annual_inc*int_rate,
+                  data = all_loan_data,
+                  family = binomial)
+```
+
