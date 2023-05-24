@@ -7,6 +7,8 @@ output: html_document
 
 # Introduction 
 
+# The Data
+
 
 # Part 1 : Fixed Effects Model 
 
@@ -661,43 +663,29 @@ for(i in 1:9){
 }
 ```
 
+
 ## Model Building
 ```{r M-Build, message=FALSE, cache=TRUE}
-training_loan_data <- read.csv(file = here::here('datasets', 'training_loan_data.csv')) # Load in the loan data
-validation_loan_data <- read.csv(file = here::here('datasets', 'validation_loan_data.csv')) # Load in the loan data
-drop<-c("credit_age_yrs",
-        "delinq_2yrs",
-        "dti",
-        "inq_last_6mths",
-        "last_pymnt_amnt",
-        "pub_rec",
-        "open_acc",
-        "total_acc",
-        "total_int",
-        "total-prncp",
-        "revol_bal",
-        "revol_util",
-        "total_rec_int",
-        "total_rec_prncp")
-all_loan_data_edit = all_loan_data[,!(names(all_loan_data) %in% drop)]
-#Full model with all possible interactions for backwards selection:
+
+all_loan_data_edit = all_loan_data
+
+#Full model with all possible interactions
+
 full_interaction_model <- glm(data = all_loan_data_edit,
                               formula = repay_fail ~ . ,
                               family = binomial)
 
 #Model with no variables present for forwards selection:
+
 null_model <- glm(data = all_loan_data_edit,
                   formula = repay_fail ~ 1,
                   family = binomial)
 
 #Perform backward and forward selection:
-backward_sel_model <- stepAIC(
-  full_interaction_model,direction = "backward",trace = 0)
-forward_sel_model <- stepAIC(
-  null_model,
-  scope = formula(full_interaction_model), 
-  direction = "forward",
-  trace = 0) ## trace = 0 prevents automatic output of stepAIC function.
+backward_sel_model <- stepAIC(full_interaction_model, direction = "backward",trace = 0)
+
+## trace = 0 prevents automatic output of stepAIC function.
+forward_sel_model <- stepAIC(null_model, scope = formula(full_interaction_model), direction = "forward", trace = 0) 
 forward_sel_model$formula
 summary(forward_sel_model)
 backward_sel_model$formula
