@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 source("./scripts/setup.r")
 
 all_loan_data <- read.csv(file = here::here('datasets', 'all_loan_data.csv')) # Load in the loan data
+training_loan_data <- read.csv(file = here::here('datasets', 'training_loan_data.csv')) # Load in the loan data
+validation_loan_data <- read.csv(file = here::here('datasets', 'validation_loan_data.csv')) # Load in the loan data
 app_cov <- c("loan_amnt","term","int_rate","emp_length","home_ownership","annual_inc","verification_status","purpose","repay_fail")
 all_loan_data <- all_loan_data[,app_cov]
 all_cat_var <- c("repay_fail",
@@ -665,6 +667,8 @@ for(i in 1:9){
 
 ## Model Building
 ```{r M-Build, message=FALSE, cache=TRUE}
+training_loan_data <- read.csv(file = here::here('datasets', 'training_loan_data.csv')) # Load in the loan data
+validation_loan_data <- read.csv(file = here::here('datasets', 'validation_loan_data.csv')) # Load in the loan data
 drop<-c("credit_age_yrs",
         "delinq_2yrs",
         "dti",
@@ -679,6 +683,7 @@ drop<-c("credit_age_yrs",
         "revol_util",
         "total_rec_int",
         "total_rec_prncp")
+all_loan_data_edit = all_loan_data[,!(names(all_loan_data) %in% drop)]
 #Full model with all possible interactions for backwards selection:
 full_interaction_model <- glm(data = all_loan_data_edit,
                               formula = repay_fail ~ . ,
@@ -717,12 +722,19 @@ plot_summs(forward_sel_model)
 ```
 ## Assessing model
 ```{r, Testing model message=FALSE, cache=TRUE}
-predicted_values <- predict(forward_sel_model, type = 'response', newdata = training_loan_data)
+predicted_values_train <- predict(forward_sel_model, type = 'response', newdata = training_loan_data)
 plot(predicted_values)
 predicted_values_vali <- predict(forward_sel_model, type = 'response', newdata = validation_loan_data)
 plot(predicted_values_vali)
-predicted_values_m1 <- predict(m1, type = 'response', newdata = training_loan_data)
-plot(predicted_values_m1)
+predicted_values_m1_train <- predict(m1, type = 'response', newdata = training_loan_data)
+plot(predicted_values_m1_train)
+predicted_values_m1_vali <- predict(m1, type = 'response', newdata = validation_loan_data)
+plot(predicted_values_m1_vali)
+
+predicted_values_m.pro <- predict(m.full.1w.pro, type = 'response', newdata = training_loan_data)
+plot(predicted_values_m.pro)
+predicted_values_m.pro_vali <- predict(m.full.1w.pro, type = 'response', newdata = validation_loan_data)
+plot(predicted_values_m.pro_vali)
 ```
 
 
@@ -736,14 +748,45 @@ pred <- prediction(predicted_values, training_loan_data$repay_fail)
 roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
 plot(roc.perf)
 abline(a=0, b= 1)
+
 pred_vali <- prediction(predicted_values_vali, validation_loan_data$repay_fail)
 roc.perf = performance(pred_vali, measure = "tpr", x.measure = "fpr")
 plot(roc.perf)
 abline(a=0, b= 1)
+
+pred_m1_train <- prediction(predicted_values_m1_train, training_loan_data$repay_fail)
+roc.perf = performance(pred_m1_train, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+
+
+pred_m1_vali <- prediction(predicted_values_m1_vali, validation_loan_data$repay_fail)
+roc.perf = performance(pred_m1_vali, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+
+pred_m.pro <- prediction(predicted_values_m.pro, training_loan_data$repay_fail)
+roc.perf = performance(pred_m.pro, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+
+pred_m.pro_vali<- prediction(predicted_values_m.pro_vali, validation_loan_data$repay_fail)
+roc.perf = performance(pred_m.pro_vali, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+
 auc.perf = performance(pred, measure = "auc")
 auc.perf@y.values
 auc.perf = performance(pred_vali, measure = "auc")
 auc.perf@y.values
+auc.perf = performance(pred_m1_train, measure = "auc")
+auc.perf@y.values
+auc.perf = performance(pred_m1_vali, measure = "auc")
+auc.perf@y.values
+
+auc.perf = performance(pred_m.pro_vali, measure = "auc")
+auc.perf@y.values
+
 acc.perf = performance(pred, measure = "acc")
 plot(acc.perf)
 acc.perf_vali = performance(pred_vali, measure = "acc")
