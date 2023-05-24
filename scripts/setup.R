@@ -23,7 +23,8 @@ pckgs <- c("tidyverse",
            "dplyr",
            "here",
            "gmodels",
-           "ROCR")
+           "ROCR",
+           "glmm")
 
 
 
