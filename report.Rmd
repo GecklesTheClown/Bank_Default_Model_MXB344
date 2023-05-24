@@ -224,7 +224,7 @@ yampai <- log(yamai/(1-yamai))
 plot(xamai,yampai,xlab="annual_inc")
 ```
 
- ## Extended Model 
+
 ```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
 ### Do logistic exploration for ext_loan_data
 ## Explore relationship between log(p/(1-p)) for loan_amnt
@@ -708,7 +708,7 @@ plot_summs(forward_sel_model)
 ## Assessing model
 ```{r, Testing model message=FALSE, cache=TRUE}
 predicted_values_train <- predict(forward_sel_model, type = 'response', newdata = training_loan_data)
-plot(predicted_values)
+plot(predicted_values_train)
 predicted_values_vali <- predict(forward_sel_model, type = 'response', newdata = validation_loan_data)
 plot(predicted_values_vali)
 predicted_values_m1_train <- predict(m1, type = 'response', newdata = training_loan_data)
@@ -716,20 +716,17 @@ plot(predicted_values_m1_train)
 predicted_values_m1_vali <- predict(m1, type = 'response', newdata = validation_loan_data)
 plot(predicted_values_m1_vali)
 
-predicted_values_m.pro <- predict(m.full.1w.pro, type = 'response', newdata = training_loan_data)
+predicted_values_m.pro <- predict(m.step.both.1w.clog, type = 'response', newdata = training_loan_data)
 plot(predicted_values_m.pro)
-predicted_values_m.pro_vali <- predict(m.full.1w.pro, type = 'response', newdata = validation_loan_data)
+predicted_values_m.pro_vali <- predict(m.step.both.1w.clog, type = 'response', newdata = validation_loan_data)
 plot(predicted_values_m.pro_vali)
 ```
 
 
 ## Model performance
 ```{r, model-per message=FALSE, cache=TRUE}
-install.packages("ROCR")
-library(ROCR)
-install.packages("gmodels")
-library(gmodels)
-pred <- prediction(predicted_values, training_loan_data$repay_fail)
+
+pred <- prediction(predicted_values_train, training_loan_data$repay_fail)
 roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
 plot(roc.perf)
 abline(a=0, b= 1)
@@ -789,6 +786,7 @@ confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
 
 
 # Part 2: Mixed Effects Model
+
 
 
 
