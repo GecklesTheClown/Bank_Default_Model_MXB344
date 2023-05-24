@@ -21,6 +21,7 @@ source("./scripts/setup.r")
 all_loan_data <- read.csv(file = here::here('datasets', 'all_loan_data.csv')) # Load in the loan data
 training_loan_data <- read.csv(file = here::here('datasets', 'training_loan_data.csv')) # Load in the loan data
 validation_loan_data <- read.csv(file = here::here('datasets', 'validation_loan_data.csv')) # Load in the loan data
+extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
 app_cov <- c("loan_amnt","term","int_rate","emp_length","home_ownership","annual_inc","verification_status","purpose","repay_fail")
 all_loan_data <- all_loan_data[,app_cov]
 all_cat_var <- c("repay_fail",
@@ -787,6 +788,22 @@ confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
 
 # Part 2: Mixed Effects Model
 
+```{r, Mixed Effect model message=FALSE, cache=TRUE}
+library('pROC')
+library(png)
+library(grid)
+require(ggplot2)
+require(GGally)
+require(reshape2)
+require(lme4)
+require(compiler)
+require(parallel)
+require(boot)
+require(lattice)
 
+m <- glmer(repay_fail ~ int_rate + term + emp_length + purpose + verification_status + annual_inc + home_ownership +
+    (1 | addr_state) + (1|issue_d), data = extended_loan_data, family = binomial, control = glmerControl(optimizer = "bobyqa"))
+
+```
 
 
