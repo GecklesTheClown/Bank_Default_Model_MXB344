@@ -41,7 +41,7 @@ roc.glm <- function(m) {
   abline(a=0, b= 1)
   
   df_holder <- data.frame(Training = auc_holder@y.values,
-                          Validation = auc_holder2@y.values)
+                          Validation = auc_holder2@y.values, row.names = "AUC")
   
   colnames(df_holder) <- c("Training", "Validation")
   
@@ -59,8 +59,7 @@ roc.glmm <- function(m) {
     performance(measure = "tpr", x.measure = "fpr")
   
   
-  plot(plot)
-  abline(a=0, b= 1)
+
   
   auc_holder <- predict(m, 
                         type = 'response', 
@@ -71,5 +70,8 @@ roc.glmm <- function(m) {
     performance(measure = "auc")
   
   auc_holder@y.values
+  
+  plot(plot)
+  abline(a=0, b= 1)
   
 }

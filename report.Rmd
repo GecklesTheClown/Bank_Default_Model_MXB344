@@ -25,7 +25,7 @@ your model with/without location and time information?
 
 
 
-
+lib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source("./scripts/setup.r")
@@ -721,18 +721,19 @@ both_sel_model <- backward_sel_model <- stepAIC(full_interaction_model,
                               direction = "both",
                               trace = 0) 
 
-both_sel_model <- backward_sel_model <- stepAIC(full_interaction_model2, 
-                              direction = "both",
-                              trace = 0) 
+# both_sel_model2 <- backward_sel_model <- stepAIC(full_interaction_model2, 
+#                               direction = "both",
+#                               trace = 0) 
 
-forward_sel_model$formula
-summary(forward_sel_model)
-backward_sel_model$formula
-summary(backward_sel_model)
-m1<-glm(formula = repay_fail ~ int_rate + annual_inc + 
+
+m1<-glm(formula = repay_fail ~ 
+          int_rate + 
+          annual_inc + 
           term, 
         family = binomial, data = all_loan_data_edit)
+
 summary(m1)
+
 
 ```
 
@@ -764,6 +765,9 @@ roc.glm(forward_sel_model) ; roc.glm(m1) ; roc.glm(m.step.both.1w.clog)
 cont_var <- c("int_rate","annual_inc")
 unscaled_var <- extended_loan_data[,cont_var]
 extended_loan_data[,cont_var] <- scale(extended_loan_data[,cont_var])
+sds <- lapply(unscaled_var, sd)
+
+
 
 # Create Initial GLMM
 
@@ -801,6 +805,11 @@ roc.glmm(m)
 
 plot_summs(forward_sel_model,m, rescale.distributions = TRUE)
 ```
+
+```{r}
+plot_summs(forward_sel_model, ci_level = 0.95,plot.distributions = TRUE)
+```
+
 
 ## Our Actual Best GLM (with interaction term)
 
