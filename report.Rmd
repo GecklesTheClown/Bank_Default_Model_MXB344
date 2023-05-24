@@ -6,9 +6,23 @@ output: html_document
 ---
 
 # Introduction 
+Recently our peer-to-peer lending start-up has been acquired by 'Apollo' a regional Australian bank. This acquisition has prompted an investigation into out companies credit risk model. Results of this investigation has concluded that a complete "ground-up' rebuild is necessary. Thus our team has been tasked in building a statistical model to predict loan default based on information known at the time of application. In regards to this model management have a number of concerns:
+
+1. How does your new model perform compared to the one you used previously? How can it be expected
+to perform on new loan applications?
+
+2. What are the important variables in this model? 
+
+3. Can accounting for this variation (e.g., state/zip-code and time) improve performance benchmarks?
+
+4. Are there any surprising differences in variables that are important for predicting credit risk, between
+your model with/without location and time information?
+
+5. Does credit risk change over time or between states?
+ 
 
 # The Data
-
+I
 
 # Part 1 : Fixed Effects Model 
 
