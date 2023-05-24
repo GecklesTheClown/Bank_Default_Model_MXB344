@@ -31,7 +31,8 @@ pckgs <- c("tidyverse",
            "lattice",
            "grid",
            "png",
-           "lme4")
+           "lme4",
+           "glmm")
 
 
 
