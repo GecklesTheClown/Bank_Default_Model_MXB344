@@ -30,7 +30,7 @@ pckgs <- c("tidyverse",
            "boot",
            "lattice",
            "grid",
-           "png"
+           "png",
            "lme4")
 
 
