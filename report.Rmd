@@ -796,9 +796,24 @@ scale_2 <- scale(extended_loan_data$annual_inc)
 extended_loan_data[,"int_rate"] <- scale_1
 extended_loan_data[,"annual_inc"]  <- scale_2
 
-m <- glmer(repay_fail ~ int_rate + term + emp_length + purpose + verification_status + annual_inc + home_ownership +
-    (1 | addr_state) + (1|issue_d), data = extended_loan_data, family = binomial, control = glmerControl(optimizer = "bobyqa"))
+m <- glmer(repay_fail ~ int_rate + term + emp_length + purpose + verification_status + home_ownership + annual_inc +
+    (1 |addr_state) + (1|issue_d), data = extended_loan_data, family = binomial, control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
 
 ```
 
+```{r, Assessing MEM message=FALSE, cache=TRUE}
 
+summary(m)
+summary(forward_sel_model)
+predicted_values.m <- predict(m, type = 'response', newdata = extended_loan_data)
+plot(predicted_values.m)
+
+pred_m.mem<- prediction(predicted_values.m, extended_loan_data$repay_fail)
+roc.perf = performance(pred_m.mem, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+
+auc.perf = performance(pred_m.mem, measure = "auc")
+auc.perf@y.values
+plot_summs(forward_sel_model,m, rescale.distributions = TRUE, exp=TRUE)
+```
