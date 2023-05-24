@@ -150,7 +150,7 @@ ggplot(tmp, aes(x = emp_length, y = value)) +
 Now we will test if the logistic regression is appropriate for this data by plotting the proportions for each continuous variables, grouped by quantiles, and seeing if the logit has a linear relationship.
 
 ```{r exploreall data set logistic (for 3 continous variables), include=TRUE}
-
+par(mfrow=c(3,1))
 ### Do logistic exploration for all_loan_data
 ## Explore relationship between log(p/(1-p)) for loan_amnt
 xa1 <- all_loan_data$loan_amnt
@@ -314,7 +314,7 @@ Now we will plot for the three continuous variables against repay failure as wel
 
 ```{r exploreext data set 3 continous variables, include=TRUE}
 ### Make plots for the 3 continuous variables vs repay failure and plots for colinearity in the extended data set (since there are extra observations)
-
+par(mfrow=c(3,1))
 RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failure of the x-axis
 
 #Box plot for loan_amount vs repay_fail for extended data set
@@ -393,6 +393,7 @@ Now we will test if the logistic regression is appropriate for this data by plot
 ```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
 ext_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv'))  # Load in the extended loan data with time and regions
 ### Do logistic exploration for ext_loan_data
+par(mfrow=c(3,1))
 ## Explore relationship between log(p/(1-p)) for loan_amnt
 x1 <- ext_loan_data$loan_amnt
 y <- ext_loan_data$repay_fail
@@ -626,6 +627,11 @@ for(i in 1:9){
   ympaniads <- log(ymaniads/(1-ymaniads))
   plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc",ylab="Repay Failure Logit(Proportion)")
 }
+```
+```{r exploreext data set addr_state, include=TRUE}
+par(mfrow=c(2,1))
+pissuedfail
+paddsfail
 ```
 
 ```{r exploreext data set earliest_cr_line, include=TRUE}
