@@ -22,11 +22,9 @@ your model with/without location and time information?
  
 
 # The Data
-I
 
-# Part 1 : Fixed Effects Model 
 
-This chunk is to refresh R studio and library the required packages.
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -48,6 +46,13 @@ all_cat_var <- c("repay_fail",
 all_loan_data[,all_cat_var] <- lapply(all_loan_data[all_cat_var], factor)
 lapply(all_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
 ```
+
+
+# Part 1 : Fixed Effects Model 
+
+This chunk is to refresh R studio and library the required packages.
+
+
 
 Now the initial loan data will be loaded into R.
 
