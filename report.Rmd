@@ -143,10 +143,6 @@ xlim=c(0,1.1),ylab=
 points(c(0,2),c(0,2),type=
 "l")
 ```
-
-
-# Part 2: Mixed Effects Model
-
 ```{r data, include=TRUE}
 ext_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv'))  # Load in the extended loan data with time and regions
 
@@ -720,6 +716,7 @@ m1_residuals<-simulateResiduals(m1)
 plot(m1_residuals)
 plot_summs(forward_sel_model)
 ```
+
 ## Assessing model
 ```{r, Testing model message=FALSE, cache=TRUE}
 predicted_values_train <- predict(forward_sel_model, type = 'response', newdata = training_loan_data)
@@ -801,4 +798,9 @@ confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
 
 ```
 
->>>>>>> 1809e38e0b3a3ed139267b819659e0b8c8ff31f6
+
+
+# Part 2: Mixed Effects Model
+
+
+
