@@ -804,7 +804,6 @@ confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
 ```
 
 
-
 # Part 2: Mixed Effects Model
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
