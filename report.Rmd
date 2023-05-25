@@ -25,10 +25,11 @@ your model with/without location and time information?
 
 
 
-
+lib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source("./scripts/setup.r")
+source(here("scripts","functions.r"))
 
 all_loan_data <- read.csv(file = here::here('datasets', 'all_loan_data.csv')) # Load in the loan data
 training_loan_data <- read.csv(file = here::here('datasets', 'training_loan_data.csv')) # Load in the loan data
@@ -689,117 +690,69 @@ for(i in 1:9){
 
 all_loan_data_edit = all_loan_data
 
-#Full model with all possible interactions
+#Full model with all possible covariates (one-way)
 
-full_interaction_model <- glm(data = all_loan_data_edit,
+full_interaction_model <- glm(data = all_loan_data,
                               formula = repay_fail ~ . ,
                               family = binomial)
 
-#Model with no variables present for forwards selection:
+#Full model with all possible covariates (two-way)
 
-null_model <- glm(data = all_loan_data_edit,
+full_interaction_model2 <- glm(data = all_loan_data,
+                              formula = repay_fail ~ .^2 ,
+                              family = binomial)
+
+#Model with no covariates present
+
+null_model <- glm(data = all_loan_data,
                   formula = repay_fail ~ 1,
                   family = binomial)
 
 #Perform backward and forward selection:
-backward_sel_model <- stepAIC(full_interaction_model, direction = "backward",trace = 0)
+backward_sel_model <- stepAIC(full_interaction_model, 
+                              direction = "backward",
+                              trace = 0) 
 
-## trace = 0 prevents automatic output of stepAIC function.
-forward_sel_model <- stepAIC(null_model, scope = formula(full_interaction_model), direction = "forward", trace = 0) 
-forward_sel_model$formula
-summary(forward_sel_model)
-backward_sel_model$formula
-summary(backward_sel_model)
-m1<-glm(formula = repay_fail ~ int_rate + annual_inc + 
+forward_sel_model <- stepAIC(null_model, 
+                             scope = formula(full_interaction_model), 
+                             direction = "forward", trace = 0)
+
+both_sel_model <- backward_sel_model <- stepAIC(full_interaction_model, 
+                              direction = "both",
+                              trace = 0) 
+
+# both_sel_model2 <- backward_sel_model <- stepAIC(full_interaction_model2, 
+#                               direction = "both",
+#                               trace = 0) 
+
+
+m1<-glm(formula = repay_fail ~ 
+          int_rate + 
+          annual_inc + 
           term, 
         family = binomial, data = all_loan_data_edit)
+
 summary(m1)
-forward_sel_residuals<-simulateResiduals(forward_sel_model)
-m1_residuals<-simulateResiduals(m1)
 
-#Plot observed quantile versus expected quantile to assess distribution fit, and predicted value versus standardised residuals for unmodelled pattern in the residuals.
-#plot(poisson_residuals)
-# a boxplot totest for uniformity per box, and a test for homgeneity of variances between boxes. A positive test will be highlighted in red. Used just for interest, Also a test to check outliers,uniformtiy and dispersion
 
-plot(m1_residuals)
-plot_summs(forward_sel_model)
 ```
-
-## Assessing model
-```{r, Testing model message=FALSE, cache=TRUE}
-predicted_values_train <- predict(forward_sel_model, type = 'response', newdata = training_loan_data)
-plot(predicted_values_train)
-predicted_values_vali <- predict(forward_sel_model, type = 'response', newdata = validation_loan_data)
-plot(predicted_values_vali)
-predicted_values_m1_train <- predict(m1, type = 'response', newdata = training_loan_data)
-plot(predicted_values_m1_train)
-predicted_values_m1_vali <- predict(m1, type = 'response', newdata = validation_loan_data)
-plot(predicted_values_m1_vali)
-
-predicted_values_m.pro <- predict(m.step.both.1w.clog, type = 'response', newdata = training_loan_data)
-plot(predicted_values_m.pro)
-predicted_values_m.pro_vali <- predict(m.step.both.1w.clog, type = 'response', newdata = validation_loan_data)
-plot(predicted_values_m.pro_vali)
-```
-
 
 ## Model performance
 ```{r, model-per message=FALSE, cache=TRUE}
 
-pred <- prediction(predicted_values_train, training_loan_data$repay_fail)
-roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
-plot(roc.perf)
-abline(a=0, b= 1)
+roc.glm(forward_sel_model) ; roc.glm(m1) ; roc.glm(m.step.both.1w.clog)
 
-pred_vali <- prediction(predicted_values_vali, validation_loan_data$repay_fail)
-roc.perf = performance(pred_vali, measure = "tpr", x.measure = "fpr")
-plot(roc.perf)
-abline(a=0, b= 1)
-
-pred_m1_train <- prediction(predicted_values_m1_train, training_loan_data$repay_fail)
-roc.perf = performance(pred_m1_train, measure = "tpr", x.measure = "fpr")
-plot(roc.perf)
-abline(a=0, b= 1)
-
-
-pred_m1_vali <- prediction(predicted_values_m1_vali, validation_loan_data$repay_fail)
-roc.perf = performance(pred_m1_vali, measure = "tpr", x.measure = "fpr")
-plot(roc.perf)
-abline(a=0, b= 1)
-
-pred_m.pro <- prediction(predicted_values_m.pro, training_loan_data$repay_fail)
-roc.perf = performance(pred_m.pro, measure = "tpr", x.measure = "fpr")
-plot(roc.perf)
-abline(a=0, b= 1)
-
-pred_m.pro_vali<- prediction(predicted_values_m.pro_vali, validation_loan_data$repay_fail)
-roc.perf = performance(pred_m.pro_vali, measure = "tpr", x.measure = "fpr")
-plot(roc.perf)
-abline(a=0, b= 1)
-
-auc.perf = performance(pred, measure = "auc")
-auc.perf@y.values
-auc.perf = performance(pred_vali, measure = "auc")
-auc.perf@y.values
-auc.perf = performance(pred_m1_train, measure = "auc")
-auc.perf@y.values
-auc.perf = performance(pred_m1_vali, measure = "auc")
-auc.perf@y.values
-
-auc.perf = performance(pred_m.pro_vali, measure = "auc")
-auc.perf@y.values
-
-acc.perf = performance(pred, measure = "acc")
-plot(acc.perf)
-acc.perf_vali = performance(pred_vali, measure = "acc")
-plot(acc.perf_vali)
-ind = which.max( slot(acc.perf, "y.values")[[1]] )
-acc = slot(acc.perf, "y.values")[[1]][ind]
-cutoff = slot(acc.perf, "x.values")[[1]][ind]
-print(c(accuracy= acc, cutoff = cutoff))
-
-# Creating a confusion matrix
-confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
+# acc.perf = performance(pred, measure = "acc")
+# plot(acc.perf)
+# acc.perf_vali = performance(pred_vali, measure = "acc")
+# plot(acc.perf_vali)
+# ind = which.max( slot(acc.perf, "y.values")[[1]] )
+# acc = slot(acc.perf, "y.values")[[1]][ind]
+# cutoff = slot(acc.perf, "x.values")[[1]][ind]
+# print(c(accuracy= acc, cutoff = cutoff))
+# 
+# # Creating a confusion matrix
+# confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
 
 ```
 
@@ -808,30 +761,86 @@ confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
+# Scale the continious variables
 cont_var <- c("int_rate","annual_inc")
-scale_1 <- scale(extended_loan_data$int_rate)
-scale_2 <- scale(extended_loan_data$annual_inc)
-extended_loan_data[,"int_rate"] <- scale_1
-extended_loan_data[,"annual_inc"]  <- scale_2
+unscaled_var <- extended_loan_data[,cont_var]
+extended_loan_data[,cont_var] <- scale(extended_loan_data[,cont_var])
+sds <- lapply(unscaled_var, sd)
 
-m <- glmer(repay_fail ~ int_rate + term + emp_length + purpose + verification_status + home_ownership + annual_inc +
-    (1 |addr_state) + (1|issue_d), data = extended_loan_data, family = binomial, control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
+
+
+# Create Initial GLMM
+
+m <- glmer(repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +  
+             (1 |addr_state) + 
+             (1|issue_d), 
+           data = extended_loan_data, 
+           family = binomial,
+           control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
+
+
 
 ```
 
 ```{r, Assessing MEM message=FALSE, cache=TRUE}
 
 summary(m)
-summary(forward_sel_model)
 predicted_values.m <- predict(m, type = 'response', newdata = extended_loan_data)
-plot(predicted_values.m)
-
 pred_m.mem<- prediction(predicted_values.m, extended_loan_data$repay_fail)
 roc.perf = performance(pred_m.mem, measure = "tpr", x.measure = "fpr")
+
 plot(roc.perf)
 abline(a=0, b= 1)
-
 auc.perf = performance(pred_m.mem, measure = "auc")
 auc.perf@y.values
-plot_summs(forward_sel_model,m, rescale.distributions = TRUE, exp=TRUE)
+
+roc.glmm(m)
+
+plot_summs(forward_sel_model,m, rescale.distributions = TRUE)
 ```
+
+```{r}
+plot_summs(forward_sel_model, ci_level = 0.95,plot.distributions = TRUE)
+```
+
+
+## Our Actual Best GLM (with interaction term)
+
+```{r}
+test <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc + 
+              annual_inc*int_rate,
+                  data = all_loan_data,
+                  family = binomial)
+
+roc.glm(test)
+
+```
+## Initial Model as seen in ppt
+
+```{r}
+test2 <- glm(formula = repay_fail ~ 
+               term + 
+               purpose +                                
+               verification_status +  
+               annual_inc,
+                  data = all_loan_data,
+                  family = binomial)
+roc.glmm(test2)
+
+
+```
+
