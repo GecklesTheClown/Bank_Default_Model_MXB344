@@ -161,7 +161,7 @@ roc.glm(m.initial)
 
 This is good but let's see if stepwise can make it better.
 
-```{r M-Build, message=FALSE, cache=TRUE}
+```{r M-Build}
 
 #Full model with all possible covariates (one-way)
 
@@ -171,8 +171,9 @@ full_interaction_model <- glm(data = all_loan_data,
 
 #Full model with all possible covariates (two-way)
 
-full_interaction_model2 <- glm(data = all_loan_data,
-                              formula = repay_fail ~ .^2 ,
+full_interaction_model_P2W <- glm(data = all_loan_data,
+                              formula = repay_fail ~.
+                              + annual_inc*int_rate,
                               family = binomial(link = "logit"))
 
 #Model with no covariates present
@@ -191,40 +192,44 @@ forward_sel_model <- stepAIC(null_model,
                              scope = formula(full_interaction_model), 
                              direction = "forward", trace = 0)
 
-both_sel_model <- backward_sel_model <- stepAIC(full_interaction_model, 
+both_sel_model <- stepAIC(full_interaction_model, 
                               direction = "both",
                               trace = 0) 
 
-both_sel_model2 <- backward_sel_model <- stepAIC(full_interaction_model2, 
-                               direction = "both",
-                               trace = 0) 
+both_sel_model_P2W <- stepAIC(full_interaction_model_P2W, 
+                              direction = "both",
+                              trace = 0)
+
+forward_sel_model_P2W  <- stepAIC(null_model, 
+                             scope=formula(full_interaction_model_P2W),
+                             direction = "forward", trace = 0)
 
 model.list <- list(
   "backward 1W" = backward_sel_model,
   "Forward 1W" = forward_sel_model,
   "Both 1W" = both_sel_model,
-  "Both 2w" = both_sel_model2)
+  "Both P2W" = both_sel_model_P2W,
+  "Forward P2W" = forward_sel_model_P2W)
 
 bics <- sapply(model.list,FUN = BIC)
 
 plot_data <- 
   data.frame(
-    model = c("backward 1W","Forward 1W","Both 1W","Both 2w"),
+    model = c("backward 1W","Forward 1W","Both 1W","Both P2W","Forward P2W"),
     bic = bics)
 
 #Display table with measures:
 knitr::kable(plot_data,row.names = FALSE,
              col.names = c("Model","BIC"))
 
-
 ```
-
 
 
 ## Model Selection
 ```{r, model-per message=FALSE, cache=TRUE}
 
-roc.glm(forward_sel_model) ; roc.glm(m1) ; roc.glm(m.step.both.1w.clog)
+roc(both_sel_model)
+plot_summs(both_sel_model, ci_level = 0.95)
 
 # acc.perf = performance(pred, measure = "acc")
 # plot(acc.perf)
@@ -240,6 +245,46 @@ roc.glm(forward_sel_model) ; roc.glm(m1) ; roc.glm(m.step.both.1w.clog)
 
 ```
 
+Since M2 is nested inside M4 these two models can be compared using a $\chi^2$-test, with hypotheses:
+
+- H0: Additional parameter season is not needed to explain variation
+- H1: Additional parameter season is needed to explain variation
+
+```{r, model-per message=FALSE, cache=TRUE}
+nested1 <- glm(formula = repay_fail ~
+                int_rate + 
+                term + 
+                emp_length + 
+                purpose + 
+                verification_status + 
+                annual_inc,
+                data = all_loan_data,
+              family = binomial)
+
+anova(nested1,forward_sel_model, test="Chisq")
+
+BIC(nested1); BIC(forward_sel_model)
+
+nested2 <- glm(formula = repay_fail ~
+                int_rate + 
+                term + 
+                purpose + 
+                verification_status + 
+                annual_inc,
+                data = all_loan_data,
+              family = binomial)
+
+anova(nested1,nested2, test="Chisq")
+
+
+
+```
+
+```{r}
+roc(nested1)
+plot_summs(nested1, ci_level = 0.95)
+
+```
 
 
 ## Model Evaluation
@@ -825,7 +870,7 @@ plot_summs(forward_sel_model,m, rescale.distributions = TRUE)
 ```
 
 ```{r}
-plot_summs(forward_sel_model, ci_level = 0.95,plot.distributions = TRUE)
+
 ```
 
 
