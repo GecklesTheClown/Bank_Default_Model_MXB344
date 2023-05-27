@@ -91,7 +91,10 @@ New Variables:
 - "addr_state"
 - "earliest_cr_line"
 
-After this short explanation of the dataset we will do some initial exploration.
+After this short explanation of the dataset we will do some initial exploration on data set (1,2 & 3).
+
+
+# Part 1 : Fixed Effects Model 
 
 ## Exploration
 
@@ -103,7 +106,7 @@ source(here("scripts","functions.r"))
 all_loan_data <- read.csv(file = here::here('datasets', 'all_loan_data.csv')) # Load in the loan data
 training_loan_data <- read.csv(file = here::here('datasets', 'training_loan_data.csv')) # Load in the loan data
 validation_loan_data <- read.csv(file = here::here('datasets', 'validation_loan_data.csv')) # Load in the loan data
-extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
+
 app_cov <- c("loan_amnt","term","int_rate","emp_length","home_ownership","annual_inc","verification_status","purpose","repay_fail")
 all_loan_data <- all_loan_data[,app_cov]
 all_cat_var <- c("repay_fail",
@@ -116,36 +119,6 @@ all_cat_var <- c("repay_fail",
 all_loan_data[,all_cat_var] <- lapply(all_loan_data[all_cat_var], factor)
 lapply(all_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
 ```
-
-
-# Part 1 : Fixed Effects Model 
-
-This chunk is to refresh R studio and library the required packages.
-
-
-
-Now the initial loan data will be loaded into R.
-
-
-Since this model is made to predict the chance of a given customer defaulting at the time of application. Many variables are not applicable. These include:
-
--   "credit_age_yrs"
--   "delinq_2yrs"
--   "dti"
--   "inq_last_6mths"
--   "last_pymnt_amnt"
--   "pub_rec"
--   "open_acc"
--   "total_acc"
--   "total_rec_int"
--   "total_rec_prncp"
--   "revol_bal"
--   "revol_util"
-
-Thus removing these covariates leaves us with 5 categorical variables and 3 continuous variables.
-
-- 
-## Data Exploration
 
 Let's take a look at the data.
 
@@ -166,9 +139,26 @@ graph_pempfail; graph_logpempfail ; graph_ptermfail ; graph_logptermfail ; graph
 
 ```
 
-
-
 ## Model Selection
+
+Let's try our hand a creating a model based on our own beliefs from research and exploration 
+
+## Initial Model as seen in ppt
+
+```{r}
+m.initial <- glm(formula = repay_fail ~ 
+               term + 
+               purpose +                                
+               verification_status +  
+               annual_inc,
+              data = all_loan_data,
+              family = binomial(link = "logit"))
+
+roc.glm(m.initial)
+
+```
+
+This is good but let's see if stepwise can make it better.
 
 ```{r}
 #Initialize the Models
@@ -195,21 +185,6 @@ m.step.both.1w.clog <- step(m.full.1w.clog, direction = "both", trace = 0)
 
 models <- c(m.step.both.1w.log,m.step.both.1w.pro,m.step.both.1w.clog)
 
-model.list <- list(
-  "log" = m.step.both.1w.log,
-  "pro" = m.step.both.1w.pro,
-  "cloglog" = m.step.both.1w.clog)
-
-bics <- sapply(model.list,FUN = BIC)
-
-plot_data <- 
-  data.frame(
-    model = c("log","pro","cloglog"),
-    bic = bics)
-
-#Display table with measures:
-knitr::kable(plot_data,row.names = FALSE,
-             col.names = c("Model","BIC"))
 
 
 ```
@@ -235,8 +210,113 @@ xlim=c(0,1.1),ylab=
 points(c(0,2),c(0,2),type=
 "l")
 ```
+
+
+
+## Model Building
+```{r M-Build, message=FALSE, cache=TRUE}
+
+all_loan_data_edit = all_loan_data
+
+#Full model with all possible covariates (one-way)
+
+full_interaction_model <- glm(data = all_loan_data,
+                              formula = repay_fail ~ . ,
+                              family = binomial)
+
+#Full model with all possible covariates (two-way)
+
+full_interaction_model2 <- glm(data = all_loan_data,
+                              formula = repay_fail ~ .^2 ,
+                              family = binomial)
+
+#Model with no covariates present
+
+null_model <- glm(data = all_loan_data,
+                  formula = repay_fail ~ 1,
+                  family = binomial)
+
+#Perform backward and forward selection:
+backward_sel_model <- stepAIC(full_interaction_model, 
+                              direction = "backward",
+                              trace = 0) 
+
+forward_sel_model <- stepAIC(null_model, 
+                             scope = formula(full_interaction_model), 
+                             direction = "forward", trace = 0)
+
+both_sel_model <- backward_sel_model <- stepAIC(full_interaction_model, 
+                              direction = "both",
+                              trace = 0) 
+
+# both_sel_model2 <- backward_sel_model <- stepAIC(full_interaction_model2, 
+#                               direction = "both",
+#                               trace = 0) 
+
+
+model.list <- list(
+  "log" = m.step.both.1w.log,
+  "pro" = m.step.both.1w.pro,
+  "cloglog" = m.step.both.1w.clog)
+
+bics <- sapply(model.list,FUN = BIC)
+
+plot_data <- 
+  data.frame(
+    model = c("log","pro","cloglog"),
+    bic = bics)
+
+#Display table with measures:
+knitr::kable(plot_data,row.names = FALSE,
+             col.names = c("Model","BIC"))
+
+
+
+m1<-glm(formula = repay_fail ~ 
+          int_rate + 
+          annual_inc + 
+          term, 
+        family = binomial, data = all_loan_data_edit)
+
+summary(m1)
+
+
+```
+
+## Model performance
+```{r, model-per message=FALSE, cache=TRUE}
+
+roc.glm(forward_sel_model) ; roc.glm(m1) ; roc.glm(m.step.both.1w.clog)
+
+# acc.perf = performance(pred, measure = "acc")
+# plot(acc.perf)
+# acc.perf_vali = performance(pred_vali, measure = "acc")
+# plot(acc.perf_vali)
+# ind = which.max( slot(acc.perf, "y.values")[[1]] )
+# acc = slot(acc.perf, "y.values")[[1]][ind]
+# cutoff = slot(acc.perf, "x.values")[[1]][ind]
+# print(c(accuracy= acc, cutoff = cutoff))
+# 
+# # Creating a confusion matrix
+# confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
+
+```
+
+
+# Part 2: Mixed Effects Model
+
+## Exploration
+
+```{r}
+extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
+
+extended_loan_data[,all_cat_var] <- lapply(extended_loan_data[all_cat_var], factor)
+lapply(extended_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
+
+ext_loan_data <- extended_loan_data
+```
+
 ```{r data, include=TRUE}
-ext_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv'))  # Load in the extended loan data with time and regions
 
 ### Make plots for the 3 continuous variables vs repay failure and plots for colinearity
 
@@ -313,7 +393,6 @@ xamai <- tapply(xa3, gaai, mean)
 yampai <- log(yamai/(1-yamai))
 plot(xamai,yampai,xlab="annual_inc")
 ```
-
 
 ```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
 ### Do logistic exploration for ext_loan_data
@@ -754,79 +833,7 @@ for(i in 1:9){
 ```
 
 
-## Model Building
-```{r M-Build, message=FALSE, cache=TRUE}
-
-all_loan_data_edit = all_loan_data
-
-#Full model with all possible covariates (one-way)
-
-full_interaction_model <- glm(data = all_loan_data,
-                              formula = repay_fail ~ . ,
-                              family = binomial)
-
-#Full model with all possible covariates (two-way)
-
-full_interaction_model2 <- glm(data = all_loan_data,
-                              formula = repay_fail ~ .^2 ,
-                              family = binomial)
-
-#Model with no covariates present
-
-null_model <- glm(data = all_loan_data,
-                  formula = repay_fail ~ 1,
-                  family = binomial)
-
-#Perform backward and forward selection:
-backward_sel_model <- stepAIC(full_interaction_model, 
-                              direction = "backward",
-                              trace = 0) 
-
-forward_sel_model <- stepAIC(null_model, 
-                             scope = formula(full_interaction_model), 
-                             direction = "forward", trace = 0)
-
-both_sel_model <- backward_sel_model <- stepAIC(full_interaction_model, 
-                              direction = "both",
-                              trace = 0) 
-
-# both_sel_model2 <- backward_sel_model <- stepAIC(full_interaction_model2, 
-#                               direction = "both",
-#                               trace = 0) 
-
-
-m1<-glm(formula = repay_fail ~ 
-          int_rate + 
-          annual_inc + 
-          term, 
-        family = binomial, data = all_loan_data_edit)
-
-summary(m1)
-
-
-```
-
-## Model performance
-```{r, model-per message=FALSE, cache=TRUE}
-
-roc.glm(forward_sel_model) ; roc.glm(m1) ; roc.glm(m.step.both.1w.clog)
-
-# acc.perf = performance(pred, measure = "acc")
-# plot(acc.perf)
-# acc.perf_vali = performance(pred_vali, measure = "acc")
-# plot(acc.perf_vali)
-# ind = which.max( slot(acc.perf, "y.values")[[1]] )
-# acc = slot(acc.perf, "y.values")[[1]][ind]
-# cutoff = slot(acc.perf, "x.values")[[1]][ind]
-# print(c(accuracy= acc, cutoff = cutoff))
-# 
-# # Creating a confusion matrix
-# confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
-
-```
-
-
-# Part 2: Mixed Effects Model
+## Model Building 
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
@@ -898,18 +905,5 @@ test <- glm(formula = repay_fail ~
 roc.glm(test)
 
 ```
-## Initial Model as seen in ppt
 
-```{r}
-test2 <- glm(formula = repay_fail ~ 
-               term + 
-               purpose +                                
-               verification_status +  
-               annual_inc,
-                  data = all_loan_data,
-                  family = binomial)
-roc.glmm(test2)
-
-
-```
 
