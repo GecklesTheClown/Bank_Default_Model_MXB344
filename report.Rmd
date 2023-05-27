@@ -6,7 +6,7 @@ output: html_document
 ---
 
 # Introduction 
-Recently our peer-to-peer lending start-up has been acquired by 'Apollo' a regional Australian bank. This acquisition has prompted an investigation into out companies credit risk model. Results of this investigation has concluded that a complete "ground-up' rebuild is necessary. Thus our team has been tasked in building a statistical model to predict loan default based on information known at the time of application. In regards to this model management have a number of concerns:
+Recently our peer-to-peer lending start-up has been acquired by 'Apollo' a regional Australian bank. This acquisition has prompted an investigation into out companies credit risk model. Results of this investigation has concluded that a complete "ground-up' rebuild is necessary. Thus our team goal in this report is building a statistical model to predict loan default based on information known at the time of application. In regards to this model management have a number of concerns:
 
 1. How does your new model perform compared to the one you used previously? How can it be expected
 to perform on new loan applications?
@@ -22,10 +22,79 @@ your model with/without location and time information?
  
 
 # The Data
+That data-set we were given is historical lending data from the USA between the years of 2007 to 2011. It features many different data sets which include:
+
+1. All loan data
+2. Training data
+3. Validation data
+4. Extended data
+
+The variables from data-sets (1), (2) & (3) contain these variables.
+
+All Variables:
+- "loan_amnt"
+- "term"
+- "int_rate"
+- "emp_length"
+- "home_ownership"
+- "annual_inc"
+- "verification_status"
+- "purpose"
+- "repay_fail"
+- "credit_age_yrs"
+- "delinq_2yrs"
+- "dti"
+- "inq_last_6mths"
+- "last_pymnt_amnt"
+- "pub_rec"
+- "open_acc"
+- "total_acc"
+- "total_rec_int"
+- "total_rec_prncp"
+- "revol_bal"
+- "revol_util"
+
+but since our model focusing assesing a customer at the time of application we have split our variables into 'applicaple' & "not applicable" 
 
 
+Applicable:
+- "loan_amnt"
+- "term"
+- "int_rate"
+- "emp_length"
+- "home_ownership"
+- "annual_inc"
+- "verification_status"
+- "purpose"
+- "repay_fail"
 
-lib
+Not Applicable.:
+- "credit_age_yrs"
+- "delinq_2yrs"
+- "dti"
+- "inq_last_6mths"
+- "last_pymnt_amnt"
+- "pub_rec"
+- "open_acc"
+- "total_acc"
+- "total_rec_int"
+- "total_rec_prncp"
+- "revol_bal"
+- "revol_util"
+
+The extended data features some new variables different from the other datasets but does still contain all the previous variables.
+
+New Variables:
+
+- "issue_d"
+- "zip_code"
+- "addr_state"
+- "earliest_cr_line"
+
+After this short explanation of the dataset we will do some initial exploration.
+
+## Exploration
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source("./scripts/setup.r")
