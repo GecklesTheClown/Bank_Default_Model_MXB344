@@ -125,6 +125,17 @@ Let's take a look at the data.
 ```{r sum, include=TRUE}
 summary(all_loan_data) # Summary of data
 ```
+There are 26071 applicants that did not default their loan payments (repay success, repay_failure = 0) and 4664 applicants that did default their loan payments (repay failure, repay_failure = 1). The overall proportion of applicants, observed in the data provided (all_loan_data), who had to default their loan payments is approximately 17.88961% of applicants. 
+
+There are 4 categorical variables which are term, home_ownership, verification status and purpose. 
+The term (loan term) is the set time it takes for a loan to be completely paid off when the borrower is making regular payment. The term in this data set can either be 36 months or 60 months. 22803 applicants have a term of 36 months while 7932 applicants (almost a third of the amount of applicants that have a 36 month term) have a term of 60 months. 
+The home_ownership is the home ownership status given by the applicant at the time of application. The home ownership statuses in this data are mortgage, none, other, own (owning a home), rent (renter). There are 13651 applicants who are mortgaging a home, 4 that have not given a home ownership status (none), 101 that are classified as others, 2370 that own a home and 14609 that are renting. Most applicants are either paying a mortgage or renting. 
+The verification_status is whether the income of the applicant has been verified by LC (verified), source verified or not verified at all. 13507 applicants have not had their income verified, 7472 have had their income source verified and 9756 have had their income verified by LC.
+The purpose is the purpose of the applicant's loan. There are 14 purposes listed in this data set which are "car" (1173 applicants), "credit_card"(3984 applicants), "debt_consolidation"(14339 applicants), "educational"(294 applicants), "home_improvement"(2277 applicants), "house"(308 applicants), "major_purchase"(1636 applicants), "medical"(529 applicants), "moving"(441 applicants), "other"(3205 applicants), "renewable_energy"(70 applicants), "small_business"(1468 applicants), "vacation" (279 applicants) and "wedding"(732 applicants). Almost half of the loan applicants in the data (14339) applicants use their loan for debt consolidation while the number of applicants for the other loan purposes are as follows.
+
+There is one discrete variable, that has been categorized. This discrete variable is employment length. employment lengths are n/a (no employment or employment information not given) (780 applicants), <1 year (3641 applicants), 1 year (2616 applicants), 2 years (3418 applicants), 3 years (3122 applicants), 4 years (2656 applicants), 5 years (2528 applicants), 6 years (1716 applicants), 7 years (1345 applicants), 8 years (1154 applicants), 9 years (965 applicants), 10+ years (6794 applicants). 
+
+There are 3 continuous variables in the data. These are the loan amount given to the applicant (loan_amnt), interest rate on the loan (int_rate) and the annual income at the time of loan application of the applicant (annual_inc). 
 
 Now we are going to make our categorical variables into proportions 
 
