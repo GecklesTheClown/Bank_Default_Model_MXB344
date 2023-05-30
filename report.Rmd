@@ -137,7 +137,8 @@ There is one discrete variable, that has been categorized. This discrete variabl
 
 There are 3 continuous variables in the data. These are the loan amount given to the applicant (loan_amnt), interest rate on the loan (int_rate) and the annual income at the time of loan application of the applicant (annual_inc). 
 
-Now we are going to make our categorical variables into proportions 
+
+Now we are going to make our categorical variables and one discrete variable into proportions 
 
 ```{r}
 source(here("scripts","prop_data.r"))
@@ -146,10 +147,14 @@ source(here("scripts","prop_data.r"))
 Plot these 
 
 ```{r}
-graph_pempfail; graph_logpempfail ; graph_ptermfail ; graph_logptermfail ; graph_phomefail ; graph_logphomefail 
-
+graph_allptermfail ; graph_allpempfail ; graph_allphomefail ; graph_allpverifail ; graph_allppurpfail 
 ```
+The 60 term has a much higher proportion (~23% having to default payment) of repay failure than that of the 36 month term  (~13% having to default payment)
+The total applicants paying mortgage (mortgage), home owners (own) and renters (rent) have around 15-16% applicants that have to default the payment. Whereas, the people who are classified as none and other have around 25-26% of applicant failing to repay their loans on time, which is much higher (by 10%) than that of the other home ownership statuses. There appears to be a trend where people who are paying for their own home, either through mortgage, owning their home or renting a home, have a lower repay failure than that of people who are not paying for their own home, none or other. 
+There is a slightly lower proportion (about 14.2-14.3%) of applicants who do not have a verified income having to default their loan payment than that of source verified applicants (about 14.6-14.7%). Verified applicants have the higher proportion of loan default which is about 17%. Overall, there does appear to be a very slight trend with a slightly increase proportion of repay failure.
+Loans for small businesses (small_business) have by the highest proportion of repay failure (about 27-29%) by a decent amount. The next higher proportion of repay failure are loans for educational purposes (educational) which is ~20%. Debt consolidation, house, medical, moving, renewable energy, vacation and "other" loan all have similar proportions of repay failure which is between 15% to 17.5%. And, car, credit card, home improvement, major_purchase and wedding loans have similar prportions of repay failure which is between 10% to 12.5%.
 
+The applicants who are not employed or did not provide such information (n/a) have the highest proportions of repay failure at 22.2%. There does not appear to be any trend in the proportion of repay failure of applicants for increasing employment length. 
 
 ## Model Building
 
