@@ -152,9 +152,127 @@ graph_allptermfail ; graph_allpempfail ; graph_allphomefail ; graph_allpverifail
 The 60 term has a much higher proportion (~23% having to default payment) of repay failure than that of the 36 month term  (~13% having to default payment)
 The total applicants paying mortgage (mortgage), home owners (own) and renters (rent) have around 15-16% applicants that have to default the payment. Whereas, the people who are classified as none and other have around 25-26% of applicant failing to repay their loans on time, which is much higher (by 10%) than that of the other home ownership statuses. There appears to be a trend where people who are paying for their own home, either through mortgage, owning their home or renting a home, have a lower repay failure than that of people who are not paying for their own home, none or other. 
 There is a slightly lower proportion (about 14.2-14.3%) of applicants who do not have a verified income having to default their loan payment than that of source verified applicants (about 14.6-14.7%). Verified applicants have the higher proportion of loan default which is about 17%. Overall, there does appear to be a very slight trend with a slightly increase proportion of repay failure.
-Loans for small businesses (small_business) have by the highest proportion of repay failure (about 27-29%) by a decent amount. The next higher proportion of repay failure are loans for educational purposes (educational) which is ~20%. Debt consolidation, house, medical, moving, renewable energy, vacation and "other" loan all have similar proportions of repay failure which is between 15% to 17.5%. And, car, credit card, home improvement, major_purchase and wedding loans have similar prportions of repay failure which is between 10% to 12.5%.
+Loans for small businesses (small_business) have by the highest proportion of repay failure (about 27-29%) by a decent amount. The next higher proportion of repay failure are loans for educational purposes (educational) which is ~20%. Debt consolidation, house, medical, moving, renewable energy, vacation and "other" loan all have similar proportions of repay failure which is between 15% to 17.5%. And, car, credit card, home improvement, major_purchase and wedding loans have similar proportions of repay failure which is between 10% to 12.5%.
 
 The applicants who are not employed or did not provide such information (n/a) have the highest proportions of repay failure at 22.2%. There does not appear to be any trend in the proportion of repay failure of applicants for increasing employment length. 
+
+
+We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. And, we tested the 3 continuous variables for co linearity
+
+```{r data, include=TRUE}
+
+### Make plots for the 3 continuous variables vs repay failure and plots for colinearity
+
+RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failur of the x-axis
+
+#Box plot for loan_amount vs repay_fail
+ploanamount <- ggplot(data = all_loan_data,
+                      mapping = aes(
+                        x = factor(repay_fail),
+                        y = loan_amnt,
+                      )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Loan_amount")
+ploanamount
+
+#Box plot for int_rate vs repay_fail
+pinterestrate <- ggplot(data = all_loan_data,
+                        mapping = aes(
+                          x = factor(repay_fail),
+                          y = int_rate,
+                        )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Int_rate")
+pinterestrate 
+
+#Box plot for annual_inc vs repay_fail
+pannualincome <- ggplot(data = all_loan_data,
+                        mapping = aes(
+                          x = factor(repay_fail),
+                          y = annual_inc,
+                        )) +
+  geom_boxplot() +
+  scale_x_discrete(labels = RepayFail_labels)+
+  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
+  labs(x = "Repay Fail",y = "Annual_inc")
+pannualincome
+
+# Test for colinarity 
+cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
+cortest
+```
+The loan amount has a positive correlation with interest rate and annual income while interest rate and annual income has a low positive correlation. The correlation between loan amount and interest rate is 0.29 which is high enough to consider that there is an interaction between interest rate and loan amount. The correlation between loan amount and annual income (0.342), which is high enough to consider that there is an interaction between annual income and loan amount is slightly higher than that of the correlation between loan amount and interest rate. In conclusion there is a moderate interaction, which can affect the model, between loan amount and interest rate and between loan amount and annual income while there is a slight interaction between interest rate and annual income. 
+
+
+We then done violin plot between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors.  
+
+```{r exploreall data set emp_length vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in all_loan_data
+
+# Kernal/Violin plot of emp_length vs loan_amnt
+tmp <- melt(all_loan_data[, c("emp_length", "loan_amnt")], id.vars="emp_length")
+ggplot(tmp, aes(x = emp_length, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of emp_length vs int_rate
+tmp <- melt(all_loan_data[, c("emp_length", "int_rate")], id.vars="emp_length")
+ggplot(tmp, aes(x = emp_length, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of emp_length vs annual_inc
+tmp <- melt(all_loan_data[, c("emp_length", "annual_inc")], id.vars="emp_length")
+ggplot(tmp, aes(x = emp_length, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+```
+The distribution of loan amount for each employment length is slightly right skewed. The distributions appear to become slightly less skewed for increasing employment length however this is a small difference and is not significant enough to consider that employment length has an interaction with loan_amount. There appear to be no trend of the distributions of annual income and interest rate with increasing employment length for the other two plots. Interactions between employment length and the three other continuous variables does not exist. 
+
+
+We then sorted the continuous variables in 20 groups. Then we found the logit of the proportions for of repay failure of each group and plotted them to determine if the logit of the proportion of repay failure had a linear relationship with the continuous variables. If so then then a logistic regression can be used to fit for the data (that contains binary outcomes) since one of the assumptions of logistic regression is that the logit of the proportion of observations has a linear relationship with the continuous variables. The logit is log(y/(1-y)).
+```{r exploreall data set logistic (for 3 continous variables), include=TRUE}
+### Do logistic exploration for all_loan_data
+## Explore relationship between log(p/(1-p)) for loan_amnt
+xa1 <- all_loan_data$loan_amnt
+ya <- all_loan_data$repay_fail
+ya <- as.integer(ya)
+ya[ya == 1] <- 0
+ya[ya == 2] <- 1
+gala <- cut(xa1, breaks=quantile(xa1,seq(0,100,5)/100))
+yamla <- tapply(ya, gala, mean)
+xamla <- tapply(xa1, gala, mean)
+yampla <- log(yamla/(1-yamla))
+plot(xamla,yampla,xlab="loan_amnt")
+
+## Explore relationship between log(p/(1-p)) for int_rate
+xa2 <- all_loan_data$int_rate
+gair <- cut(xa2, breaks=quantile(xa2,seq(0,100,5)/100))
+yamir <- tapply(ya, gair, mean)
+xamir <- tapply(xa2, gair, mean)
+yampir <- log(yamir/(1-yamir))
+plot(xamir,yampir,xlab="int_rate")
+
+## Explore relationship between log(p/(1-p)) for annual_inc
+xa3 <- all_loan_data$annual_inc
+gaai <- cut(xa3, breaks=quantile(xa3,seq(0,100,5)/100))
+yamai <- tapply(ya, gaai, mean)
+xamai <- tapply(xa3, gaai, mean)
+yampai <- log(yamai/(1-yamai))
+plot(xamai,yampai,xlab="annual_inc")
+```
+We can see that there is a rough positive linear relationship between the logit of proportion of repay failure and loan amount. We can also see that there is a strong positive linear relationship between the logit of proportion of repay failure and interest rate. We can also see that there is a moderate negative linear relationship between the logit of proportion of repay failure and annual income. However this could be a quadratic relationship for the annual income with the logit of proportion of repay failure as shown by the logit of the last and second last groups going back up but there is not enough data points in between the last group and the second last group to determine if this is the case. In conclusion we can suggest using a logistic regression to fit the data provided since the assumption of linearity of logit observations vs continuous predictors is met. 
+
 
 ## Model Building
 
