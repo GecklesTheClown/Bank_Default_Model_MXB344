@@ -586,14 +586,14 @@ plot(xmai,ympai,xlab="annual_inc")
 Just like in the previous data set, we can see that there is a rough positive linear relationship between the logit of proportion of repay failure and loan amount. We can also see that there is a strong positive linear relationship between the logit of proportion of repay failure and interest rate. We can also see that there is a moderate negative linear relationship between the logit of proportion of repay failure and annual income. However this could be a quadratic relationship for the annual income with the logit of proportion of repay failure as shown by the logit of the last and second last groups going back up but there is not enough data points in between the last group and the second last group to determine if this is the case. In conclusion we can suggest using a logistic regression to fit the data provided since the assumption of linearity of logit observations vs continuous predictors is met. 
 
 
-We then plotted the proportion of failure for our random effects to determine if the proportions differ within each location (address state and zip code) and if the proportions differ with time (issue date of loan and earliest credit line)
+We then plotted the proportion of failure for our random effects to determine if the proportions differ within each location (address state and zip code) and if the proportions differ with time (issue date of loan and earliest credit line). We did plots for address state (addr_state) as the location random effect and issue date of loan (issue_d) as the time random effect since they have a decent amount of data points for each time/location, which we can breifly explore its effects on the linearity assumption of the logistic regression model. 
 
 Here are the plots
 
 ```{r exploreext data set random effects, include=TRUE}
-pissuedfail ; pzipcfail ; paddsfail
+pissuedfail ; paddsfail
 ```
-
+We can see that the proportion of repay failure differs significantly for each time (issue date of loan) and for each location (address state). We can see particular that address state "ME" has 0% repay failure and address states "IN" (~36%-38% repay failure) and "NE" (~50% repay failure) have by far the highest proportion of repay failures. We can see that there are no repay failure in June 2007. Therefore, we should consider accounting for the time (issue date) and location (address state) in our model.  
 
 ```{r exploreext data set addr_state, include=TRUE}
 ### Plot the proportion and logit proportion of failure for each variable in addr_state
