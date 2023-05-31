@@ -120,6 +120,17 @@ all_loan_data[,all_cat_var] <- lapply(all_loan_data[all_cat_var], factor)
 lapply(all_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
 ```
 
+And, load in the extended data.
+
+```{r}
+extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
+
+extended_loan_data[,all_cat_var] <- lapply(extended_loan_data[all_cat_var], factor)
+lapply(extended_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
+
+ext_loan_data <- extended_loan_data
+```
+
 Let's take a look at the data.
 
 ```{r sum, include=TRUE}
@@ -436,19 +447,6 @@ plot_summs(nested1, ci_level = 0.95)
 
 ## Exploration
 We have been provided with an extended data set that contains our random effects (we will only consider 2 of them for model fitting). We will do a separate exploratory analysis for the extended data set due to it having 38419 applicants while the normal data set has 30735. Thus there could be changes to the relationships and observations made in the previous exploratory analysis for the normal data set (without the random effects)
-
-
-Load in the extended data.
-
-```{r}
-extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
-
-extended_loan_data[,all_cat_var] <- lapply(extended_loan_data[all_cat_var], factor)
-lapply(extended_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
-
-ext_loan_data <- extended_loan_data
-```
-
 
 Plot the proportions of repay failure against our 4 categorical variables and 1 of our discrete variables (that has been categorized). 
 
