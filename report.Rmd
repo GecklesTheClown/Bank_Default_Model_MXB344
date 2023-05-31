@@ -157,7 +157,7 @@ Loans for small businesses (small_business) have by the highest proportion of re
 The applicants who are not employed or did not provide such information (n/a) have the highest proportions of repay failure at 22.2%. There does not appear to be any trend in the proportion of repay failure of applicants for increasing employment length. 
 
 
-We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. And, we tested the 3 continuous variables for co linearity
+We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. And, we tested the 3 continuous variables for co linearity. We will also be doing an additional plot for only the median and 25-75% of data for annual income due to outliers making it hard to visualize the data.
 
 ```{r data, include=TRUE}
 
@@ -201,11 +201,19 @@ pannualincome <- ggplot(data = all_loan_data,
   labs(x = "Repay Fail",y = "Annual_inc")
 pannualincome
 
+ggplot(data = all_loan_data) + stat_summary(
+  mapping = aes(x = repay_fail, y = annual_inc),
+  fun.min = function(z) { quantile(z,0.25) },
+  fun.max = function(z) { quantile(z,0.75) },
+  fun = median)
+
 # Test for colinarity 
 cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
 cortest
 ```
-The loan amount has a positive correlation with interest rate and annual income while interest rate and annual income has a low positive correlation. The correlation between loan amount and interest rate is 0.29 which is high enough to consider that there is an interaction between interest rate and loan amount. The correlation between loan amount and annual income (0.342), which is high enough to consider that there is an interaction between annual income and loan amount is slightly higher than that of the correlation between loan amount and interest rate. In conclusion there is a moderate interaction, which can affect the model, between loan amount and interest rate and between loan amount and annual income while there is a slight interaction between interest rate and annual income. 
+Both no repay failure (0) and repay failure (1) have similar loan amounts hence both the loan amounts are equally associated with repay failure and success, i.e. may be the case where 10000-11000 loans have an roughly similar proportion of repay failure to 15000-16000 loans. Whereas, higher interest rates seem to be associated with repay failure more than that of lower interest rates and hence there may be a case where 15%-16% interest rates have a higher proportion of repay failure than that of 10%-11%. It appears that lower annual incomes are more associated with repay failure than that of higher annual income and hence there may be a case were annual income of 50000-60000 have higher proportion of repay failure than that of an annual income of 500000-501000. 
+
+The loan amount has a positive correlation with interest rate and annual income while interest rate and annual income has a low positive correlation. The correlation between loan amount and interest rate is 0.29 which is high enough to consider that there is an interaction between interest rate and loan amount. The correlation between loan amount and annual income (0.342), which is high enough to consider that there is an interaction between annual income and loan amount, also the correlation is slightly higher than that of the correlation between loan amount and interest rate. In conclusion there is a moderate interaction, which can affect the model, between loan amount and interest rate and between loan amount and annual income while there is a slight interaction, not enought to affect the model in a meaningful way, between interest rate and annual income. 
 
 
 We then done violin plot between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors.  
@@ -427,6 +435,10 @@ plot_summs(nested1, ci_level = 0.95)
 # Part 2: Mixed Effects Model
 
 ## Exploration
+We have been provided with an extended data set that contains our random effects (we will only consider 2 of them for model fitting). We will do a separate exploratory analysis for the extended data set due to it having 38419 applicants while the normal data set has 30735. Thus there could be changes to the relationships and observations made in the previous exploratory analysis for the normal data set (without the random effects)
+
+
+Load in the extended data.
 
 ```{r}
 extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
@@ -437,6 +449,22 @@ lapply(extended_loan_data[all_cat_var],levels) # Make all categorical variables 
 ext_loan_data <- extended_loan_data
 ```
 
+
+Plot the proportions of repay failure against our 4 categorical variables and 1 of our discrete variables (that has been categorized). 
+
+```{r}
+graph_extptermfail ; graph_extpempfail ; graph_extphomefail ; graph_extpverifail ; graph_extppurpfail 
+```
+The proportions of repay failure is higher for the applicants that have a 60 month term (~23%-24% repay failure) than that of the 36 months (~12%-13% repay failure).
+The repay failure proportions for home ownership statuses classified as none (25%) or other (~23%) is much higher than that of the other proportions. Home ownership statuses classified as mortgage (~14-14.5%%), own (~15.5%) and rent (~16%) have similar proportions of repay failure.
+There appears to be a slight trend with the proportion of repay failure in the verification status where the more verified an applicant is the higher the proportion of repay failure is (~14% for not verified, ~14.75% with source verified and ~ 16.75% with verified).
+The small business loan have the highest proportion of repay failure which is ~27.5%. The educational loan have the next highest proportion of loan default which is ~21%-22%. Dept consolidation, house, medical, moving, other, renewable energy, and vacation loans have similar proportions of repay failure at around 15%-17.5%. Car, credit card, home improvement, major purchase and wedding have similar proportions of repay failure at `around ~10%-12.5%. 
+
+Employment length classified as n/a has the highest proportion of repay failure which is at ~22-22.5%. There does not appear to be a trend in the increasing employment length and proportion of repay failure. 
+
+
+We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. And, we tested the 3 continuous variables for co linearity. We will also be doing an additional plot for only the median and 25-75% of data for annual income due to outliers making it hard to visualize the data.
+
 ```{r data, include=TRUE}
 
 ### Make plots for the 3 continuous variables vs repay failure and plots for colinearity
@@ -444,7 +472,7 @@ ext_loan_data <- extended_loan_data
 RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failur of the x-axis
 
 #Box plot for loan_amount vs repay_fail
-ploanamount <- ggplot(data = all_loan_data,
+ploanamount <- ggplot(data = ext_loan_data,
                       mapping = aes(
                                    x = factor(repay_fail),
                                    y = loan_amnt,
@@ -456,7 +484,7 @@ ploanamount <- ggplot(data = all_loan_data,
 ploanamount
 
 #Box plot for int_rate vs repay_fail
-pinterestrate <- ggplot(data = all_loan_data,
+pinterestrate <- ggplot(data = ext_loan_data,
        mapping = aes(
          x = factor(repay_fail),
          y = int_rate,
@@ -468,7 +496,7 @@ pinterestrate <- ggplot(data = all_loan_data,
 pinterestrate 
 
 #Box plot for annual_inc vs repay_fail
-pannualincome <- ggplot(data = all_loan_data,
+pannualincome <- ggplot(data = ext_loan_data,
        mapping = aes(
          x = factor(repay_fail),
          y = annual_inc,
@@ -479,10 +507,22 @@ pannualincome <- ggplot(data = all_loan_data,
   labs(x = "Repay Fail",y = "Annual_inc")
 pannualincome
 
+ggplot(data = ext_loan_data) + stat_summary(
+  mapping = aes(x = repay_fail, y = annual_inc),
+  fun.min = function(z) { quantile(z,0.25) },
+  fun.max = function(z) { quantile(z,0.75) },
+  fun = median)
+
 # Test for colinarity 
-cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
+cortest <- ggpairs(ext_loan_data, columns = c(2, 4, 7))
 cortest
 ```
+Just like in the previous data set, both no repay failure (0) and repay failure (1) have similar loan amounts hence both the loan amounts are equally associated with repay failure and success, i.e. may be the case where 10000-11000 loans have an roughly similar proportion of repay failure to 15000-16000 loans. Whereas, higher interest rates seem to be associated with repay failure more than that of lower interest rates and hence there may be a case where 15%-16% interest rates have a higher proportion of repay failure than that of 10%-11%. It appears that lower annual incomes are more associated with repay failure than that of higher annual income and hence there may be a case were annual income of 50000-60000 have higher proportion of repay failure than that of an annual income of 500000-501000. 
+
+Just like in the previous data set, the loan amount has a positive correlation with interest rate and annual income while interest rate and annual income has a low positive correlation. The correlation between loan amount and interest rate is 0.292 which is high enough to consider that there is an interaction between interest rate and loan amount. The correlation between loan amount and annual income (0.277), which is high enough to consider that there is an interaction between annual income and loan amount, also the correlation is slightly lower than that of the correlation between loan amount and interest rate. In conclusion there is a moderate interaction, which can affect the model, between loan amount and interest rate and between loan amount and annual income while there is a slight interaction, which will only have very minor effects on the model, between interest rate and annual income. 
+
+We then done violin plot between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors.  
+
 
 ```{r exploreall data set logistic (for 3 continous variables), include=TRUE}
 ### Do logistic exploration for all_loan_data
