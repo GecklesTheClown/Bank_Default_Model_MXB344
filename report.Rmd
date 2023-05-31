@@ -605,7 +605,7 @@ ext_issued_fail <- as.data.frame(ext_issued_fail)
 ext_issued_fail <- relocate(ext_issued_fail, V110, .after = V55)
 ext_issued_fail <- t(ext_issued_fail)
 ext_issued_fail <- as.data.frame(ext_issued_fail)
-ext_issued_fail$`repay_fail == "1"` <- as.logitical(ext_issued_fail$`repay_fail == "1"`)
+ext_issued_fail$`repay_fail == "1"` <- as.logical(ext_issued_fail$`repay_fail == "1"`)
 ext_issued_fail$n <- as.numeric(ext_issued_fail$n)
 issuedfailsumext <- filter(ext_issued_fail, ext_issued_fail$`repay_fail == "1"` == "TRUE")
 
@@ -632,13 +632,14 @@ pissuedfail ; logitpissuedfail
 
 ### Plot the proportion and logit proportion of failure for each variable in issue_d
 
-## Plot the logitit of failure for each continous variable for issue_d
+## Plot the logit of failure for each continous variable for issue_d
 
-# Plot the logitit of failure for each loan_amnt variable for issue_d
+# Plot the logit of failure for each loan_amnt variable for issue_d
 par(mfrow=c(3,3))
 for(i in 1:9){
   isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
   xamnisd <- ext_loan_data$loan_amnt[isd]
+  xamnisd <- as.numeric(xamnisd)
   yisd <- ext_loan_data$repay_fail[isd]
   gamnisd <- cut(xamnisd, breaks=quantile(xamnisd,seq(0,100,15)/100))
   ymamnisd <- tapply(yisd, gamnisd, mean)
