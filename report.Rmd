@@ -245,7 +245,7 @@ ggplot(tmp, aes(x = emp_length, y = value)) +
   facet_grid(variable ~ .) #+
 #scale_y_sqrt()
 ```
-The distribution of loan amount for each employment length is slightly right skewed. The distributions appear to become slightly less skewed for increasing employment length however this is a small difference and is not significant enough to consider that employment length has an interaction with loan_amount. There appear to be no trend of the distributions of annual income and interest rate with increasing employment length for the other two plots. Interactions between employment length and the three other continuous variables does not exist. 
+The distribution of loan amount for each employment length is slightly right skewed. The distributions appear to become slightly less skewed for increasing employment length however this is a small difference and is not significant enough to consider that employment length has an interaction with loan_amount. There appear to be no trend of the distributions of annual income and interest rate with increasing employment length for the other two plots. Interactions that can affect the model between employment length and the three other continuous variables does not exist. 
 
 
 We then sorted the continuous variables in 20 groups. Then we found the logit of the proportions for of repay failure of each group and plotted them to determine if the logit of the proportion of repay failure had a linear relationship with the continuous variables. If so then then a logistic regression can be used to fit for the data (that contains binary outcomes) since one of the assumptions of logistic regression is that the logit of the proportion of observations has a linear relationship with the continuous variables. The logit is log(y/(1-y)).
@@ -523,43 +523,46 @@ Just like in the previous data set, the loan amount has a positive correlation w
 
 We then done violin plot between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors.  
 
+```{r exploreall data set emp_length vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in all_loan_data
+
+# Kernal/Violin plot of emp_length vs loan_amnt
+tmp <- melt(all_loan_data[, c("emp_length", "loan_amnt")], id.vars="emp_length")
+ggplot(tmp, aes(x = emp_length, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of emp_length vs int_rate
+tmp <- melt(all_loan_data[, c("emp_length", "int_rate")], id.vars="emp_length")
+ggplot(tmp, aes(x = emp_length, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of emp_length vs annual_inc
+tmp <- melt(all_loan_data[, c("emp_length", "annual_inc")], id.vars="emp_length")
+ggplot(tmp, aes(x = emp_length, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+```
+Just like in the previous data set, the distribution of loan amount for each employment length is slightly right skewed. The distributions appear to become slightly less skewed for increasing employment length however this is a small difference and is not significant enough to consider that employment length has an interaction with loan_amount. There appear to be no trend of the distributions of annual income and interest rate with increasing employment length for the other two plots. Interactions that can affect the model between employment length and the three other continuous variables does not exist. 
+
+
+Just like in the previous data set, we then sorted the continuous variables in 20 groups. Then we found the logit of the proportions for of repay failure of each group and plotted them to determine if the logit of the proportion of repay failure had a linear relationship with the continuous variables. If so then then a logistic regression can be used to fit for the data (that contains binary outcomes) since one of the assumptions of logistic regression is that the logit of the proportion of observations has a linear relationship with the continuous variables. The logit is log(y/(1-y)).
 
 ```{r exploreall data set logistic (for 3 continous variables), include=TRUE}
 ### Do logistic exploration for all_loan_data
 ## Explore relationship between log(p/(1-p)) for loan_amnt
-xa1 <- all_loan_data$loan_amnt
-ya <- all_loan_data$repay_fail
-ya <- as.integer(ya)
-ya[ya == 1] <- 0
-ya[ya == 2] <- 1
-gala <- cut(xa1, breaks=quantile(xa1,seq(0,100,5)/100))
-yamla <- tapply(ya, gala, mean)
-xamla <- tapply(xa1, gala, mean)
-yampla <- log(yamla/(1-yamla))
-plot(xamla,yampla,xlab="loan_amnt")
-
-## Explore relationship between log(p/(1-p)) for int_rate
-xa2 <- all_loan_data$int_rate
-gair <- cut(xa2, breaks=quantile(xa2,seq(0,100,5)/100))
-yamir <- tapply(ya, gair, mean)
-xamir <- tapply(xa2, gair, mean)
-yampir <- log(yamir/(1-yamir))
-plot(xamir,yampir,xlab="int_rate")
-
-## Explore relationship between log(p/(1-p)) for annual_inc
-xa3 <- all_loan_data$annual_inc
-gaai <- cut(xa3, breaks=quantile(xa3,seq(0,100,5)/100))
-yamai <- tapply(ya, gaai, mean)
-xamai <- tapply(xa3, gaai, mean)
-yampai <- log(yamai/(1-yamai))
-plot(xamai,yampai,xlab="annual_inc")
-```
-
-```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
-### Do logistic exploration for ext_loan_data
-## Explore relationship between log(p/(1-p)) for loan_amnt
 x1 <- ext_loan_data$loan_amnt
 y <- ext_loan_data$repay_fail
+y <- as.integer(y)
+y[y == 1] <- 0
+y[y == 2] <- 1
 gla <- cut(x1, breaks=quantile(x1,seq(0,100,5)/100))
 ymla <- tapply(y, gla, mean)
 xmla <- tapply(x1, gla, mean)
@@ -582,209 +585,10 @@ xmai <- tapply(x3, gai, mean)
 ympai <- log(ymai/(1-ymai))
 plot(xmai,ympai,xlab="annual_inc")
 ```
+Just like in the previous data set, we can see that there is a rough positive linear relationship between the logit of proportion of repay failure and loan amount. We can also see that there is a strong positive linear relationship between the logit of proportion of repay failure and interest rate. We can also see that there is a moderate negative linear relationship between the logit of proportion of repay failure and annual income. However this could be a quadratic relationship for the annual income with the logit of proportion of repay failure as shown by the logit of the last and second last groups going back up but there is not enough data points in between the last group and the second last group to determine if this is the case. In conclusion we can suggest using a logistic regression to fit the data provided since the assumption of linearity of logit observations vs continuous predictors is met. 
 
-```{r exploreext data set 5 catagorical variables, include=TRUE}
-## term
 
-# Obtain number of people in each term
-exttermsum <- count(ext_loan_data, term)
 
-# Obtain number of people that failed in each term
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-exttermfailsum <- count(ext_loan_data_fail, term)
-
-# Obtain proportion and logit(proportion) of failure in each term
-extprop_term <- exttermfailsum[,2] / exttermsum[,2]
-extprop_term_logit <- logit(extprop_term)
-
-# Obtain proportion and logit(proportion) of failure in each term
-extproptermdf <- data.frame(term = exttermsum$term, frequency = extprop_term, logit_frequency = extprop_term_logit)
-
-# Graph for ext term
-graph_extptermfail <- ggplot(extproptermdf, aes(x=term, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproptermdf$term) +
-  labs(x = "term",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitptermfail <- ggplot(extproptermdf, aes(x=term, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproptermdf$term) +
-  labs(x = "term",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extptermfail ; graph_extlogitptermfail
-
-## Emp_length
-
-# Obtain number of people in each emp_length
-extempsum <- count(ext_loan_data, emp_length)
-
-# Obtain number of people that failed in each emp_length
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-extempfailsum <- count(ext_loan_data_fail, emp_length)
-
-# Obtain proportion and logit(proportion) of failure in each emp_length
-extprop_emp_length <- extempfailsum[,2] / extempsum[,2]
-extprop_emp_length_logit <- logit(extprop_emp_length)
-
-# Obtain proportion and logit(proportion) of failure in each emp_length
-extpropempdf <- data.frame(emp_length = extempsum$emp_length, frequency = extprop_emp_length, logit_frequency = extprop_emp_length_logit)
-
-# Graph for ext emp_length
-graph_extpempfail <- ggplot(extpropempdf, aes(x=emp_length, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropempdf$emp_length) +
-  labs(x = "Emp_Length",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitpempfail <- ggplot(extpropempdf, aes(x=emp_length, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropempdf$emp_length) +
-  labs(x = "Emp_length",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extpempfail ; graph_extlogitpempfail
-
-## home_ownership
-
-# Obtain number of people in each home_ownership
-exthomesum <- count(ext_loan_data, home_ownership)
-
-# Obtain number of people that failed in each home_ownership
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-exthomefailsum <- count(ext_loan_data_fail, home_ownership)
-
-# Obtain proportion and logit(proportion) of failure in each home_ownership
-extprop_home_ownership <- exthomefailsum[,2] / exthomesum[,2]
-extprop_home_ownership_logit <- logit(extprop_home_ownership)
-
-# Obtain proportion and logit(proportion) of failure in each home_ownership
-extprophomedf <- data.frame(home_ownership = exthomesum$home_ownership, frequency = extprop_home_ownership, logit_frequency = extprop_home_ownership_logit)
-
-# Graph for ext home_ownership
-graph_extphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extphomefail ; graph_extlogitphomefail
-
-## verification_status
-
-# Obtain number of people in each verification_status
-extverisum <- count(ext_loan_data, verification_status)
-
-# Obtain number of people that failed in each verification_status
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-extverifailsum <- count(ext_loan_data_fail, verification_status)
-
-# Obtain proportion and logit(proportion) of failure in each verification_status
-extprop_verification_status <- extverifailsum[,2] / extverisum[,2]
-extprop_verification_status_logit <- logit(extprop_verification_status)
-
-# Obtain proportion and logit(proportion) of failure in each verification_status
-extpropveridf <- data.frame(verification_status = extverisum$verification_status, frequency = extprop_verification_status, logit_frequency = extprop_verification_status_logit)
-
-# Graph for ext verification_status
-graph_extpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extpverifail ; graph_extlogitpverifail
-
-## purpose
-
-# Obtain number of people in each purpose
-extpurpsum <- count(ext_loan_data, purpose)
-
-# Obtain number of people that failed in each purpose
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-extpurpfailsum <- count(ext_loan_data_fail, purpose)
-
-# Obtain proportion and logit(proportion) of failure in each purpose
-extprop_purpose <- extpurpfailsum[,2] / extpurpsum[,2]
-extprop_purpose_logit <- logit(extprop_purpose)
-
-# Obtain proportion and logit(proportion) of failure in each purpose
-extproppurpdf <- data.frame(purpose = extpurpsum$purpose, frequency = extprop_purpose, logit_frequency = extprop_purpose_logit)
-
-# Graph for ext purpose
-graph_extppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extppurpfail ; graph_extlogitppurpfail
-```
-
-```{r exploreext data set 3 continous variables, include=TRUE}
-### Make plots for the 3 continuous variables vs repay failure and plots for colinearity in the extended data set (since there are extra observations)
-
-RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failure of the x-axis
-
-#Box plot for loan_amount vs repay_fail for extended data set
-pextloanamount <- ggplot(data = ext_loan_data,
-                         mapping = aes(
-                           x = factor(repay_fail),
-                           y = loan_amnt,
-                         )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Loan_amount")
-pextloanamount
-
-#Box plot for int_rate vs repay_fail
-pextinterestrate <- ggplot(data = ext_loan_data,
-                           mapping = aes(
-                             x = factor(repay_fail),
-                             y = int_rate,
-                           )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Int_rate")
-pextinterestrate 
-
-#Box plot for annual_inc vs repay_fail
-pextannualincome <- ggplot(data = ext_loan_data,
-                           mapping = aes(
-                             x = factor(repay_fail),
-                             y = annual_inc,
-                           )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Annual_inc")
-pextannualincome
-
-# Test for colinarity 
-cortest <- ggpairs(ext_loan_data, columns = c(2, 4, 7))
-cortest
-```
 
 ```{r exploreext data set issue_d, include=TRUE}
 ## Plot the proportion and logit proportion of failure for issue_d
@@ -924,7 +728,7 @@ ext_adds_fail <- as.data.frame(ext_adds_fail)
 ext_adds_fail <- relocate(ext_adds_fail, V100, .after = V43)
 ext_adds_fail <- t(ext_adds_fail)
 ext_adds_fail <- as.data.frame(ext_adds_fail)
-ext_adds_fail$`repay_fail == "1"` <- as.logitical(ext_adds_fail$`repay_fail == "1"`)
+ext_adds_fail$`repay_fail == "1"` <- as.logical(ext_adds_fail$`repay_fail == "1"`)
 ext_adds_fail$n <- as.numeric(ext_adds_fail$n)
 addsfailsumext <- filter(ext_adds_fail, ext_adds_fail$`repay_fail == "1"` == "TRUE")
 
