@@ -5,27 +5,6 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-# Introduction 
-Recently our peer-to-peer lending start-up has been acquired by 'Apollo' a regional Australian bank. This acquisition has prompted an investigation into out companies credit risk model. Results of this investigation has concluded that a complete "ground-up' rebuild is necessary. Thus our team has been tasked in building a statistical model to predict loan default based on information known at the time of application. In regards to this model management have a number of concerns:
-
-1. How does your new model perform compared to the one you used previously? How can it be expected
-to perform on new loan applications?
-
-2. What are the important variables in this model? 
-
-3. Can accounting for this variation (e.g., state/zip-code and time) improve performance benchmarks?
-
-4. Are there any surprising differences in variables that are important for predicting credit risk, between
-your model with/without location and time information?
-
-5. Does credit risk change over time or between states?
- 
-
-# The Data
-
-
-
-lib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source("./scripts/setup.r")
@@ -34,7 +13,7 @@ source(here("scripts","functions.r"))
 all_loan_data <- read.csv(file = here::here('datasets', 'all_loan_data.csv')) # Load in the loan data
 training_loan_data <- read.csv(file = here::here('datasets', 'training_loan_data.csv')) # Load in the loan data
 validation_loan_data <- read.csv(file = here::here('datasets', 'validation_loan_data.csv')) # Load in the loan data
-extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
+
 app_cov <- c("loan_amnt","term","int_rate","emp_length","home_ownership","annual_inc","verification_status","purpose","repay_fail")
 all_loan_data <- all_loan_data[,app_cov]
 all_cat_var <- c("repay_fail",
@@ -48,799 +27,249 @@ all_loan_data[,all_cat_var] <- lapply(all_loan_data[all_cat_var], factor)
 lapply(all_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
 ```
 
-
-# Part 1 : Fixed Effects Model 
-
-This chunk is to refresh R studio and library the required packages.
-
-
-
-Now the initial loan data will be loaded into R.
-
-
-Since this model is made to predict the chance of a given customer defaulting at the time of application. Many variables are not applicable. These include:
-
--   "credit_age_yrs"
--   "delinq_2yrs"
--   "dti"
--   "inq_last_6mths"
--   "last_pymnt_amnt"
--   "pub_rec"
--   "open_acc"
--   "total_acc"
--   "total_rec_int"
--   "total_rec_prncp"
--   "revol_bal"
--   "revol_util"
-
-Thus removing these covariates leaves us with 5 categorical variables and 3 continuous variables.
-
-- 
-## Data Exploration
-
-Let's take a look at the data.
-
-```{r sum, include=TRUE}
-summary(all_loan_data) # Summary of data
-```
-
-Now we are going to make our categorical variables into proportions 
+And, load in the extended data.
 
 ```{r}
-source(here("scripts","prop_data.r"))
+extended_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv')) # Load in the loan data
+
+extended_loan_data[,all_cat_var] <- lapply(extended_loan_data[all_cat_var], factor)
+lapply(extended_loan_data[all_cat_var],levels) # Make all categorical variables into factors for R 
+
+ext_loan_data <- extended_loan_data
+```
+Violin plots for normal data for the 4 categorical variables vs the 3 continuous variables 
+
+Violin Plots for term
+```{r exploreall data set term vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in all_loan_data
+
+# Kernal/Violin plot of term vs loan_amnt
+tmp <- melt(all_loan_data[, c("term", "loan_amnt")], id.vars="term")
+ggplot(tmp, aes(x = term, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of term vs int_rate
+tmp <- melt(all_loan_data[, c("term", "int_rate")], id.vars="term")
+ggplot(tmp, aes(x = term, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of term vs annual_inc
+tmp <- melt(all_loan_data[, c("term", "annual_inc")], id.vars="term")
+ggplot(tmp, aes(x = term, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
 
-Plot these 
+Violin Plots for verification_status
+```{r exploreall data set verification_status vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in all_loan_data
 
-```{r}
-graph_pempfail; graph_logpempfail ; graph_ptermfail ; graph_logptermfail ; graph_phomefail ; graph_logphomefail 
+# Kernal/Violin plot of verification_status vs loan_amnt
+tmp <- melt(all_loan_data[, c("verification_status", "loan_amnt")], id.vars="verification_status")
+ggplot(tmp, aes(x = verification_status, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
+# Kernal/Violin plot of verification_status vs int_rate
+tmp <- melt(all_loan_data[, c("verification_status", "int_rate")], id.vars="verification_status")
+ggplot(tmp, aes(x = verification_status, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of verification_status vs annual_inc
+tmp <- melt(all_loan_data[, c("verification_status", "annual_inc")], id.vars="verification_status")
+ggplot(tmp, aes(x = verification_status, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
 
+Violin Plots for purpose
+```{r exploreall data set purpose vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in all_loan_data
 
+# Kernal/Violin plot of purpose vs loan_amnt
+tmp <- melt(all_loan_data[, c("purpose", "loan_amnt")], id.vars="purpose")
+ggplot(tmp, aes(x = purpose, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-## Model Selection
+# Kernal/Violin plot of purpose vs int_rate
+tmp <- melt(all_loan_data[, c("purpose", "int_rate")], id.vars="purpose")
+ggplot(tmp, aes(x = purpose, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-```{r}
-#Initialize the Models
-
-m.full.1w.log <- glm(data = all_loan_data,
-                     formula = repay_fail ~.,
-                     family = binomial(link = "logit"))
-                
-  
-m.full.1w.pro <- glm(data = all_loan_data,
-                     formula = repay_fail ~.,
-                     family = binomial(link = "probit"))
-
-m.full.1w.clog <- glm(data = all_loan_data,
-                     formula = repay_fail ~.,
-                     family = binomial(link = "cloglog"))
-
-#Stepwise Regression
-
-
-m.step.both.1w.log <- step(m.full.1w.log, direction = "both", trace = 0)
-m.step.both.1w.pro <- step(m.full.1w.pro, direction = "both", trace = 0)
-m.step.both.1w.clog <- step(m.full.1w.clog, direction = "both", trace = 0)
-
-models <- c(m.step.both.1w.log,m.step.both.1w.pro,m.step.both.1w.clog)
-
-model.list <- list(
-  "log" = m.step.both.1w.log,
-  "pro" = m.step.both.1w.pro,
-  "cloglog" = m.step.both.1w.clog)
-
-bics <- sapply(model.list,FUN = BIC)
-
-plot_data <- 
-  data.frame(
-    model = c("log","pro","cloglog"),
-    bic = bics)
-
-#Display table with measures:
-knitr::kable(plot_data,row.names = FALSE,
-             col.names = c("Model","BIC"))
-
-
-```
-Our Probit came out the best
-
-
-```{r}
-m.initial <- m.full.1w.pro
-
-
-anova(m.initial, test="Chisq")
-pchisq(m.initial$deviance, df=m.initial$df.residual, lower.tail=FALSE)
-res.initial = simulateResiduals(m.initial)
-plot(res.initial)
-
-pred <- predict(m.initial)
-pred <- exp(pred)/(1+exp(pred))
-plot(all_loan_data$repay_fail,pred,ylim=c(0,1.1),
-xlim=c(0,1.1),ylab=
-"Predicted"
-,xlab=
-"Observed")
-points(c(0,2),c(0,2),type=
-"l")
-```
-```{r data, include=TRUE}
-ext_loan_data <- read.csv(file = here::here('datasets', 'extended_loan_data.csv'))  # Load in the extended loan data with time and regions
-
-### Make plots for the 3 continuous variables vs repay failure and plots for colinearity
-
-RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failur of the x-axis
-
-#Box plot for loan_amount vs repay_fail
-ploanamount <- ggplot(data = all_loan_data,
-                      mapping = aes(
-                                   x = factor(repay_fail),
-                                   y = loan_amnt,
-       )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Loan_amount")
-ploanamount
-
-#Box plot for int_rate vs repay_fail
-pinterestrate <- ggplot(data = all_loan_data,
-       mapping = aes(
-         x = factor(repay_fail),
-         y = int_rate,
-       )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Int_rate")
-pinterestrate 
-
-#Box plot for annual_inc vs repay_fail
-pannualincome <- ggplot(data = all_loan_data,
-       mapping = aes(
-         x = factor(repay_fail),
-         y = annual_inc,
-       )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Annual_inc")
-pannualincome
-
-# Test for colinarity 
-cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
-cortest
+# Kernal/Violin plot of purpose vs annual_inc
+tmp <- melt(all_loan_data[, c("purpose", "annual_inc")], id.vars="purpose")
+ggplot(tmp, aes(x = purpose, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
 
-```{r exploreall data set logistic (for 3 continous variables), include=TRUE}
-### Do logistic exploration for all_loan_data
-## Explore relationship between log(p/(1-p)) for loan_amnt
-xa1 <- all_loan_data$loan_amnt
-ya <- all_loan_data$repay_fail
-ya <- as.integer(ya)
-ya[ya == 1] <- 0
-ya[ya == 2] <- 1
-gala <- cut(xa1, breaks=quantile(xa1,seq(0,100,5)/100))
-yamla <- tapply(ya, gala, mean)
-xamla <- tapply(xa1, gala, mean)
-yampla <- log(yamla/(1-yamla))
-plot(xamla,yampla,xlab="loan_amnt")
+Violin Plots for home_ownership
+```{r exploreall data set home_ownership vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in all_loan_data
 
-## Explore relationship between log(p/(1-p)) for int_rate
-xa2 <- all_loan_data$int_rate
-gair <- cut(xa2, breaks=quantile(xa2,seq(0,100,5)/100))
-yamir <- tapply(ya, gair, mean)
-xamir <- tapply(xa2, gair, mean)
-yampir <- log(yamir/(1-yamir))
-plot(xamir,yampir,xlab="int_rate")
+# Kernal/Violin plot of home_ownership vs loan_amnt
+tmp <- melt(all_loan_data[, c("home_ownership", "loan_amnt")], id.vars="home_ownership")
+ggplot(tmp, aes(x = home_ownership, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-## Explore relationship between log(p/(1-p)) for annual_inc
-xa3 <- all_loan_data$annual_inc
-gaai <- cut(xa3, breaks=quantile(xa3,seq(0,100,5)/100))
-yamai <- tapply(ya, gaai, mean)
-xamai <- tapply(xa3, gaai, mean)
-yampai <- log(yamai/(1-yamai))
-plot(xamai,yampai,xlab="annual_inc")
+# Kernal/Violin plot of home_ownership vs int_rate
+tmp <- melt(all_loan_data[, c("home_ownership", "int_rate")], id.vars="home_ownership")
+ggplot(tmp, aes(x = home_ownership, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of home_ownership vs annual_inc
+tmp <- melt(all_loan_data[, c("home_ownership", "annual_inc")], id.vars="home_ownership")
+ggplot(tmp, aes(x = home_ownership, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
 
 
-```{r exploreext data set logistic (for 3 continous variables), include=TRUE}
-### Do logistic exploration for ext_loan_data
-## Explore relationship between log(p/(1-p)) for loan_amnt
-x1 <- ext_loan_data$loan_amnt
-y <- ext_loan_data$repay_fail
-gla <- cut(x1, breaks=quantile(x1,seq(0,100,5)/100))
-ymla <- tapply(y, gla, mean)
-xmla <- tapply(x1, gla, mean)
-ympla <- log(ymla/(1-ymla))
-plot(xmla,ympla,xlab="loan_amnt")
+Violin plots for extended data for the 4 categorical variables vs the 3 continuous variables 
 
-## Explore relationship between log(p/(1-p)) for int_rate
-x2 <- ext_loan_data$int_rate
-gir <- cut(x2, breaks=quantile(x2,seq(0,100,5)/100))
-ymir <- tapply(y, gir, mean)
-xmir <- tapply(x2, gir, mean)
-ympir <- log(ymir/(1-ymir))
-plot(xmir,ympir,xlab="int_rate")
+Violin Plots for term
+```{r exploreext data set term vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in ext_loan_data
 
-## Explore relationship between log(p/(1-p)) for annual_inc
-x3 <- ext_loan_data$annual_inc
-gai <- cut(x3, breaks=quantile(x3,seq(0,100,5)/100))
-ymai <- tapply(y, gai, mean)
-xmai <- tapply(x3, gai, mean)
-ympai <- log(ymai/(1-ymai))
-plot(xmai,ympai,xlab="annual_inc")
+# Kernal/Violin plot of term vs loan_amnt
+tmp <- melt(ext_loan_data[, c("term", "loan_amnt")], id.vars="term")
+ggplot(tmp, aes(x = term, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of term vs int_rate
+tmp <- melt(ext_loan_data[, c("term", "int_rate")], id.vars="term")
+ggplot(tmp, aes(x = term, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
+
+# Kernal/Violin plot of term vs annual_inc
+tmp <- melt(ext_loan_data[, c("term", "annual_inc")], id.vars="term")
+ggplot(tmp, aes(x = term, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
 
-```{r exploreext data set 5 catagorical variables, include=TRUE}
-## term
+Violin Plots for verification_status
+```{r exploreext data set verification_status vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in ext_loan_data
 
-# Obtain number of people in each term
-exttermsum <- count(ext_loan_data, term)
+# Kernal/Violin plot of verification_status vs loan_amnt
+tmp <- melt(ext_loan_data[, c("verification_status", "loan_amnt")], id.vars="verification_status")
+ggplot(tmp, aes(x = verification_status, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-# Obtain number of people that failed in each term
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-exttermfailsum <- count(ext_loan_data_fail, term)
+# Kernal/Violin plot of verification_status vs int_rate
+tmp <- melt(ext_loan_data[, c("verification_status", "int_rate")], id.vars="verification_status")
+ggplot(tmp, aes(x = verification_status, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-# Obtain proportion and logit(proportion) of failure in each term
-extprop_term <- exttermfailsum[,2] / exttermsum[,2]
-extprop_term_logit <- logit(extprop_term)
-
-# Obtain proportion and logit(proportion) of failure in each term
-extproptermdf <- data.frame(term = exttermsum$term, frequency = extprop_term, logit_frequency = extprop_term_logit)
-
-# Graph for ext term
-graph_extptermfail <- ggplot(extproptermdf, aes(x=term, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproptermdf$term) +
-  labs(x = "term",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitptermfail <- ggplot(extproptermdf, aes(x=term, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproptermdf$term) +
-  labs(x = "term",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extptermfail ; graph_extlogitptermfail
-
-## Emp_length
-
-# Obtain number of people in each emp_length
-extempsum <- count(ext_loan_data, emp_length)
-
-# Obtain number of people that failed in each emp_length
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-extempfailsum <- count(ext_loan_data_fail, emp_length)
-
-# Obtain proportion and logit(proportion) of failure in each emp_length
-extprop_emp_length <- extempfailsum[,2] / extempsum[,2]
-extprop_emp_length_logit <- logit(extprop_emp_length)
-
-# Obtain proportion and logit(proportion) of failure in each emp_length
-extpropempdf <- data.frame(emp_length = extempsum$emp_length, frequency = extprop_emp_length, logit_frequency = extprop_emp_length_logit)
-
-# Graph for ext emp_length
-graph_extpempfail <- ggplot(extpropempdf, aes(x=emp_length, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropempdf$emp_length) +
-  labs(x = "Emp_Length",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitpempfail <- ggplot(extpropempdf, aes(x=emp_length, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropempdf$emp_length) +
-  labs(x = "Emp_length",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extpempfail ; graph_extlogitpempfail
-
-## home_ownership
-
-# Obtain number of people in each home_ownership
-exthomesum <- count(ext_loan_data, home_ownership)
-
-# Obtain number of people that failed in each home_ownership
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-exthomefailsum <- count(ext_loan_data_fail, home_ownership)
-
-# Obtain proportion and logit(proportion) of failure in each home_ownership
-extprop_home_ownership <- exthomefailsum[,2] / exthomesum[,2]
-extprop_home_ownership_logit <- logit(extprop_home_ownership)
-
-# Obtain proportion and logit(proportion) of failure in each home_ownership
-extprophomedf <- data.frame(home_ownership = exthomesum$home_ownership, frequency = extprop_home_ownership, logit_frequency = extprop_home_ownership_logit)
-
-# Graph for ext home_ownership
-graph_extphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extphomefail ; graph_extlogitphomefail
-
-## verification_status
-
-# Obtain number of people in each verification_status
-extverisum <- count(ext_loan_data, verification_status)
-
-# Obtain number of people that failed in each verification_status
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-extverifailsum <- count(ext_loan_data_fail, verification_status)
-
-# Obtain proportion and logit(proportion) of failure in each verification_status
-extprop_verification_status <- extverifailsum[,2] / extverisum[,2]
-extprop_verification_status_logit <- logit(extprop_verification_status)
-
-# Obtain proportion and logit(proportion) of failure in each verification_status
-extpropveridf <- data.frame(verification_status = extverisum$verification_status, frequency = extprop_verification_status, logit_frequency = extprop_verification_status_logit)
-
-# Graph for ext verification_status
-graph_extpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extpverifail ; graph_extlogitpverifail
-
-## purpose
-
-# Obtain number of people in each purpose
-extpurpsum <- count(ext_loan_data, purpose)
-
-# Obtain number of people that failed in each purpose
-ext_loan_data_fail <- filter(ext_loan_data, repay_fail == "1")
-extpurpfailsum <- count(ext_loan_data_fail, purpose)
-
-# Obtain proportion and logit(proportion) of failure in each purpose
-extprop_purpose <- extpurpfailsum[,2] / extpurpsum[,2]
-extprop_purpose_logit <- logit(extprop_purpose)
-
-# Obtain proportion and logit(proportion) of failure in each purpose
-extproppurpdf <- data.frame(purpose = extpurpsum$purpose, frequency = extprop_purpose, logit_frequency = extprop_purpose_logit)
-
-# Graph for ext purpose
-graph_extppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extlogitppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = extproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
-
-graph_extppurpfail ; graph_extlogitppurpfail
+# Kernal/Violin plot of verification_status vs annual_inc
+tmp <- melt(ext_loan_data[, c("verification_status", "annual_inc")], id.vars="verification_status")
+ggplot(tmp, aes(x = verification_status, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
 
-```{r exploreext data set 3 continous variables, include=TRUE}
-### Make plots for the 3 continuous variables vs repay failure and plots for colinearity in the extended data set (since there are extra observations)
+Violin Plots for purpose
+```{r exploreext data set purpose vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in ext_loan_data
 
-RepayFail_labels <- c("0","1") # Make labels for the box plots with repay failure of the x-axis
+# Kernal/Violin plot of purpose vs loan_amnt
+tmp <- melt(ext_loan_data[, c("purpose", "loan_amnt")], id.vars="purpose")
+ggplot(tmp, aes(x = purpose, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-#Box plot for loan_amount vs repay_fail for extended data set
-pextloanamount <- ggplot(data = ext_loan_data,
-                         mapping = aes(
-                           x = factor(repay_fail),
-                           y = loan_amnt,
-                         )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Loan_amount")
-pextloanamount
+# Kernal/Violin plot of purpose vs int_rate
+tmp <- melt(ext_loan_data[, c("purpose", "int_rate")], id.vars="purpose")
+ggplot(tmp, aes(x = purpose, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-#Box plot for int_rate vs repay_fail
-pextinterestrate <- ggplot(data = ext_loan_data,
-                           mapping = aes(
-                             x = factor(repay_fail),
-                             y = int_rate,
-                           )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Int_rate")
-pextinterestrate 
-
-#Box plot for annual_inc vs repay_fail
-pextannualincome <- ggplot(data = ext_loan_data,
-                           mapping = aes(
-                             x = factor(repay_fail),
-                             y = annual_inc,
-                           )) +
-  geom_boxplot() +
-  scale_x_discrete(labels = RepayFail_labels)+
-  theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0)) +
-  labs(x = "Repay Fail",y = "Annual_inc")
-pextannualincome
-
-# Test for colinarity 
-cortest <- ggpairs(ext_loan_data, columns = c(2, 4, 7))
-cortest
+# Kernal/Violin plot of purpose vs annual_inc
+tmp <- melt(ext_loan_data[, c("purpose", "annual_inc")], id.vars="purpose")
+ggplot(tmp, aes(x = purpose, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
 
-```{r exploreext data set issue_d, include=TRUE}
-## Plot the proportion and logit proportion of failure for issue_d
+Violin Plots for home_ownership
+```{r exploreext data set home_ownership vs 3 continous variables, include=TRUE}
+## Kernal/Violin plots of emp_lenth vs 3 continous variables in ext_loan_data
 
-# Obtain number of people in each issue_d
-issuedsum <- count(ext_loan_data, issue_d, .drop = FALSE)
+# Kernal/Violin plot of home_ownership vs loan_amnt
+tmp <- melt(ext_loan_data[, c("home_ownership", "loan_amnt")], id.vars="home_ownership")
+ggplot(tmp, aes(x = home_ownership, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-# Obtain number of people that failed in each issue_d
-ext_issued_fail <- count(ext_loan_data, issue_d, repay_fail == "1")
-ext_missingrowIF <- c("Jun-2007", "TRUE", "0")
-ext_issued_fail <- rbind(ext_issued_fail, ext_missingrowIF)
-ext_issued_fail <- t(ext_issued_fail)
-ext_issued_fail <- as.data.frame(ext_issued_fail)
-ext_issued_fail <- relocate(ext_issued_fail, V110, .after = V55)
-ext_issued_fail <- t(ext_issued_fail)
-ext_issued_fail <- as.data.frame(ext_issued_fail)
-ext_issued_fail$`repay_fail == "1"` <- as.logitical(ext_issued_fail$`repay_fail == "1"`)
-ext_issued_fail$n <- as.numeric(ext_issued_fail$n)
-issuedfailsumext <- filter(ext_issued_fail, ext_issued_fail$`repay_fail == "1"` == "TRUE")
+# Kernal/Violin plot of home_ownership vs int_rate
+tmp <- melt(ext_loan_data[, c("home_ownership", "int_rate")], id.vars="home_ownership")
+ggplot(tmp, aes(x = home_ownership, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 
-# Obtain proportion and logit(proportion) of failure in each issue_d
-prop_issue_d <- issuedfailsumext[,3] / issuedsum[,2]
-
-# Obtain proportion and logit(proportion) of failure in each issue_d
-prop_issue_d_logit <- sapply(prop_issue_d, logit)
-propissueddf <- data.frame(issue_d = issuedsum$issue_d, frequency = prop_issue_d, logit_frequency = prop_issue_d_logit )
-
-pissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-logitpissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-pissuedfail ; logitpissuedfail
-
-### Plot the proportion and logit proportion of failure for each variable in issue_d
-
-## Plot the logitit of failure for each continous variable for issue_d
-
-# Plot the logitit of failure for each loan_amnt variable for issue_d
-par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
-  xamnisd <- ext_loan_data$loan_amnt[isd]
-  yisd <- ext_loan_data$repay_fail[isd]
-  gamnisd <- cut(xamnisd, breaks=quantile(xamnisd,seq(0,100,15)/100))
-  ymamnisd <- tapply(yisd, gamnisd, mean)
-  xmamnisd <- tapply(xamnisd, gamnisd, mean)
-  ympamnisd <- logit(ymamnisd/(1-ymamnisd))
-  plot(xmamnisd,ympamnisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="loan_amnt")
-}
-
-# Plot the logitit of failure for each int_rate variable for issue_d
-par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
-  xinrisd <- ext_loan_data$int_rate[isd]
-  yisd <- ext_loan_data$repay_fail[isd]
-  ginrisd <- cut(xinrisd, breaks=quantile(xinrisd,seq(0,100,15)/100))
-  yminrisd <- tapply(yisd, ginrisd, mean)
-  xminrisd <- tapply(xinrisd, ginrisd, mean)
-  ympinrisd <- logit(yminrisd/(1-yminrisd))
-  plot(xminrisd,ympinrisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="int_rate")
-}
-
-# Plot the logitit of failure for each annual_inc variable for issue_d
-par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
-  xaniisd <- ext_loan_data$annual_inc[isd]
-  yisd <- ext_loan_data$repay_fail[isd]
-  ganiisd <- cut(xaniisd, breaks=quantile(xaniisd,seq(0,100,15)/100))
-  ymaniisd <- tapply(yisd, ganiisd, mean)
-  xmaniisd <- tapply(xaniisd, ganiisd, mean)
-  ympaniisd <- logit(ymaniisd/(1-ymaniisd))
-  plot(xmaniisd,ympaniisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="annual_inc")
-}
+# Kernal/Violin plot of home_ownership vs annual_inc
+tmp <- melt(ext_loan_data[, c("home_ownership", "annual_inc")], id.vars="home_ownership")
+ggplot(tmp, aes(x = home_ownership, y = value)) +
+  geom_jitter(alpha = .1) +
+  geom_violin(alpha = .75) +
+  facet_grid(variable ~ .) #+
+#scale_y_sqrt()
 ```
-
-```{r exploreext data set zip_code, include=TRUE}
-## Plot the proportion and logit proportion of failure for zip_code
-
-# Obtain number of people in each zip_code
-zipcsum <- count(ext_loan_data, zip_code, .drop = FALSE)
-
-# Obtain number of people that failed in each zip_code
-ext_zipc_fail <- count(ext_loan_data, zip_code, repay_fail == "1", .drop = FALSE)
-ext_zipc_fail <- filter(ext_zipc_fail, ext_zipc_fail$`repay_fail == "1"` == "TRUE")
-ext_zipc_fail$`repay_fail == "1"` <- NULL
-ext_zipc_fail2 <- anti_join(zipcsum, ext_zipc_fail, by = c("zip_code" = "zip_code"))
-ext_zipc_fail2$n <- 0
-ext_zipc_fail <- rbind(ext_zipc_fail, ext_zipc_fail2)
-ext_zipc_fail$zip_code <- gsub("xx","",as.character(ext_zipc_fail$zip_code))
-ext_zipc_fail <- ext_zipc_fail[order(as.integer(ext_zipc_fail$zip_code),decreasing = FALSE), ]
-ext_zipc_fail$zip_code <- paste0(ext_zipc_fail$zip_code, 'xx')
-
-# Obtain proportion and logit(proportion) of failure in each zip_code
-prop_zip_code <- ext_zipc_fail[,2] / zipcsum[,2]
-
-# Obtain proportion and logit(proportion) of failure in each zip_code
-prop_zip_code_logit <- sapply(prop_zip_code, logit)
-propzipcdf <- data.frame(zip_code = zipcsum$zip_code, frequency = prop_zip_code, logit_frequency = prop_zip_code_logit )
-
-pzipcfail <- ggplot(propzipcdf, aes(x=zip_code, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propzipcdf$zip_code) +
-  labs(x = "zip_code",y = "Repay Failure Proportion") 
-
-logitpzipcfail <- ggplot(propzipcdf, aes(x=zip_code, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propzipcdf$zip_code) +
-  labs(x = "zip_code",y = "Repay Failure logit(Proportion)") 
-
-pzipcfail ; logitpzipcfail
-
-# We did not explore the effects of zip code onto each variable since there 1 or very low number of observations in some zip codes
-```
-
-```{r exploreext data set addr_state, include=TRUE}
-## Plot the proportion and logit proportion of failure for addr_state
-
-# Obtain number of people in each addr_state
-addssum <- count(ext_loan_data, addr_state, .drop = FALSE)
-
-# Obtain number of people that failed in each addr_state
-ext_adds_fail <- count(ext_loan_data, addr_state, repay_fail == "1")
-ext_missingrowAF <- c("ME", "TRUE", "0")
-ext_adds_fail <- rbind(ext_adds_fail, ext_missingrowAF)
-ext_adds_fail <- t(ext_adds_fail)
-ext_adds_fail <- as.data.frame(ext_adds_fail)
-ext_adds_fail <- relocate(ext_adds_fail, V100, .after = V43)
-ext_adds_fail <- t(ext_adds_fail)
-ext_adds_fail <- as.data.frame(ext_adds_fail)
-ext_adds_fail$`repay_fail == "1"` <- as.logitical(ext_adds_fail$`repay_fail == "1"`)
-ext_adds_fail$n <- as.numeric(ext_adds_fail$n)
-addsfailsumext <- filter(ext_adds_fail, ext_adds_fail$`repay_fail == "1"` == "TRUE")
-
-# Obtain proportion and logit(proportion) of failure in each addr_state
-prop_addr_state <- addsfailsumext[,3] / addssum[,2]
-
-# Obtain proportion and logit(proportion) of failure in each addr_state
-prop_addr_state_logit <- sapply(prop_addr_state, logit)
-propaddsdf <- data.frame(addr_state = addssum$addr_state, frequency = prop_addr_state, logit_frequency = prop_addr_state_logit )
-
-paddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-logitpaddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-paddsfail ; logitpaddsfail
-
-### Plot the proportion and logit proportion of failure for each variable in addr_state
-
-## Plot the logitit of failure for each continous variable for addr_state
-
-# Plot the logitit of failure for each loan_amnt variable for addr_state
-par(mfrow=c(3,3))
-for(i in 1:9){
-  ads <- which(ext_loan_data$addr_state == addssum[i,1])
-  xamnads <- ext_loan_data$loan_amnt[ads]
-  yads <- ext_loan_data$repay_fail[ads]
-  gamnads <- cut(xamnads, breaks=quantile(xamnads,seq(0,100,15)/100))
-  ymamnads <- tapply(yads, gamnads, mean)
-  xmamnads <- tapply(xamnads, gamnads, mean)
-  ympamnads <- logit(ymamnads/(1-ymamnads))
-  plot(xmamnads,ympamnads,main=paste("addr_state = ",addssum[i,1]),xlab="loan_amnt")
-}
-
-# Plot the logitit of failure for each int_rate variable for addr_state
-par(mfrow=c(3,3))
-for(i in 1:9){
-  ads <- which(ext_loan_data$addr_state == addssum[i,1])
-  xinrads <- ext_loan_data$int_rate[ads]
-  yads <- ext_loan_data$repay_fail[ads]
-  ginrads <- cut(xinrads, breaks=quantile(xinrads,seq(0,100,15)/100))
-  yminrads <- tapply(yads, ginrads, mean)
-  xminrads <- tapply(xinrads, ginrads, mean)
-  ympinrads <- logit(yminrads/(1-yminrads))
-  plot(xminrads,ympinrads,main=paste("addr_state = ",addssum[i,1]),xlab="int_rate")
-}
-
-# Plot the logitit of failure for each annual_inc variable for addr_state
-par(mfrow=c(3,3))
-for(i in 1:9){
-  ads <- which(ext_loan_data$addr_state == addssum[i,1])
-  xaniads <- ext_loan_data$annual_inc[ads]
-  yads <- ext_loan_data$repay_fail[ads]
-  ganiads <- cut(xaniads, breaks=quantile(xaniads,seq(0,100,15)/100))
-  ymaniads <- tapply(yads, ganiads, mean)
-  xmaniads <- tapply(xaniads, ganiads, mean)
-  ympaniads <- logit(ymaniads/(1-ymaniads))
-  plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc")
-}
-```
-
-
-## Model Building
-```{r M-Build, message=FALSE, cache=TRUE}
-
-all_loan_data_edit = all_loan_data
-
-#Full model with all possible covariates (one-way)
-
-full_interaction_model <- glm(data = all_loan_data,
-                              formula = repay_fail ~ . ,
-                              family = binomial)
-
-#Full model with all possible covariates (two-way)
-
-full_interaction_model2 <- glm(data = all_loan_data,
-                              formula = repay_fail ~ .^2 ,
-                              family = binomial)
-
-#Model with no covariates present
-
-null_model <- glm(data = all_loan_data,
-                  formula = repay_fail ~ 1,
-                  family = binomial)
-
-#Perform backward and forward selection:
-backward_sel_model <- stepAIC(full_interaction_model, 
-                              direction = "backward",
-                              trace = 0) 
-
-forward_sel_model <- stepAIC(null_model, 
-                             scope = formula(full_interaction_model), 
-                             direction = "forward", trace = 0)
-
-both_sel_model <- backward_sel_model <- stepAIC(full_interaction_model, 
-                              direction = "both",
-                              trace = 0) 
-
-# both_sel_model2 <- backward_sel_model <- stepAIC(full_interaction_model2, 
-#                               direction = "both",
-#                               trace = 0) 
-
-
-m1<-glm(formula = repay_fail ~ 
-          int_rate + 
-          annual_inc + 
-          term, 
-        family = binomial, data = all_loan_data_edit)
-
-summary(m1)
-
-
-```
-
-## Model performance
-```{r, model-per message=FALSE, cache=TRUE}
-
-roc.glm(forward_sel_model) ; roc.glm(m1) ; roc.glm(m.step.both.1w.clog)
-
-# acc.perf = performance(pred, measure = "acc")
-# plot(acc.perf)
-# acc.perf_vali = performance(pred_vali, measure = "acc")
-# plot(acc.perf_vali)
-# ind = which.max( slot(acc.perf, "y.values")[[1]] )
-# acc = slot(acc.perf, "y.values")[[1]][ind]
-# cutoff = slot(acc.perf, "x.values")[[1]][ind]
-# print(c(accuracy= acc, cutoff = cutoff))
-# 
-# # Creating a confusion matrix
-# confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
-
-```
-
-
-# Part 2: Mixed Effects Model
-
-```{r, Mixed Effect model message=FALSE, cache=TRUE}
-
-# Scale the continious variables
-cont_var <- c("int_rate","annual_inc")
-unscaled_var <- extended_loan_data[,cont_var]
-extended_loan_data[,cont_var] <- scale(extended_loan_data[,cont_var])
-sds <- lapply(unscaled_var, sd)
-
-
-
-# Create Initial GLMM
-
-m <- glmer(repay_fail ~
-             int_rate + 
-             term + 
-             emp_length + 
-             purpose + 
-             verification_status + 
-             home_ownership + 
-             annual_inc +  
-             (1 |addr_state) + 
-             (1|issue_d), 
-           data = extended_loan_data, 
-           family = binomial,
-           control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
-
-
-
-```
-
-```{r, Assessing MEM message=FALSE, cache=TRUE}
-
-summary(m)
-predicted_values.m <- predict(m, type = 'response', newdata = extended_loan_data)
-pred_m.mem<- prediction(predicted_values.m, extended_loan_data$repay_fail)
-roc.perf = performance(pred_m.mem, measure = "tpr", x.measure = "fpr")
-
-plot(roc.perf)
-abline(a=0, b= 1)
-auc.perf = performance(pred_m.mem, measure = "auc")
-auc.perf@y.values
-
-roc.glmm(m)
-
-plot_summs(forward_sel_model,m, rescale.distributions = TRUE)
-```
-
-```{r}
-plot_summs(forward_sel_model, ci_level = 0.95,plot.distributions = TRUE)
-```
-
-
-## Our Actual Best GLM (with interaction term)
-
-```{r}
-test <- glm(formula = repay_fail ~
-             int_rate + 
-             term + 
-             emp_length + 
-             purpose + 
-             verification_status + 
-             home_ownership + 
-             annual_inc + 
-              annual_inc*int_rate,
-                  data = all_loan_data,
-                  family = binomial)
-
-roc.glm(test)
-
-```
-## Initial Model as seen in ppt
-
-```{r}
-test2 <- glm(formula = repay_fail ~ 
-               term + 
-               purpose +                                
-               verification_status +  
-               annual_inc,
-                  data = all_loan_data,
-                  family = binomial)
-roc.glm(test2)
-
-
-```
-
