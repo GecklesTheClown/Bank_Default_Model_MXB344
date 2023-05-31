@@ -588,172 +588,16 @@ plot(xmai,ympai,xlab="annual_inc")
 Just like in the previous data set, we can see that there is a rough positive linear relationship between the logit of proportion of repay failure and loan amount. We can also see that there is a strong positive linear relationship between the logit of proportion of repay failure and interest rate. We can also see that there is a moderate negative linear relationship between the logit of proportion of repay failure and annual income. However this could be a quadratic relationship for the annual income with the logit of proportion of repay failure as shown by the logit of the last and second last groups going back up but there is not enough data points in between the last group and the second last group to determine if this is the case. In conclusion we can suggest using a logistic regression to fit the data provided since the assumption of linearity of logit observations vs continuous predictors is met. 
 
 
+We then plotted the proportion of failure for our random effects to determine if the proportions differ within each location (address state and zip code) and if the proportions differ with time (issue date of loan and earliest credit line)
 
+Here are the plots
 
-```{r exploreext data set issue_d, include=TRUE}
-## Plot the proportion and logit proportion of failure for issue_d
-
-# Obtain number of people in each issue_d
-issuedsum <- count(ext_loan_data, issue_d, .drop = FALSE)
-
-# Obtain number of people that failed in each issue_d
-ext_issued_fail <- count(ext_loan_data, issue_d, repay_fail == "1")
-ext_missingrowIF <- c("Jun-2007", "TRUE", "0")
-ext_issued_fail <- rbind(ext_issued_fail, ext_missingrowIF)
-ext_issued_fail <- t(ext_issued_fail)
-ext_issued_fail <- as.data.frame(ext_issued_fail)
-ext_issued_fail <- relocate(ext_issued_fail, V110, .after = V55)
-ext_issued_fail <- t(ext_issued_fail)
-ext_issued_fail <- as.data.frame(ext_issued_fail)
-ext_issued_fail$`repay_fail == "1"` <- as.logical(ext_issued_fail$`repay_fail == "1"`)
-ext_issued_fail$n <- as.numeric(ext_issued_fail$n)
-issuedfailsumext <- filter(ext_issued_fail, ext_issued_fail$`repay_fail == "1"` == "TRUE")
-
-# Obtain proportion and logit(proportion) of failure in each issue_d
-prop_issue_d <- issuedfailsumext[,3] / issuedsum[,2]
-
-# Obtain proportion and logit(proportion) of failure in each issue_d
-prop_issue_d_logit <- sapply(prop_issue_d, logit)
-propissueddf <- data.frame(issue_d = issuedsum$issue_d, frequency = prop_issue_d, logit_frequency = prop_issue_d_logit )
-
-pissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-logitpissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-pissuedfail ; logitpissuedfail
-
-### Plot the proportion and logit proportion of failure for each variable in issue_d
-
-## Plot the logit of failure for each continous variable for issue_d
-
-# Plot the logit of failure for each loan_amnt variable for issue_d
-par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
-  xamnisd <- ext_loan_data$loan_amnt[isd]
-  xamnisd <- as.numeric(xamnisd)
-  yisd <- ext_loan_data$repay_fail[isd]
-  gamnisd <- cut(xamnisd, breaks=quantile(xamnisd,seq(0,100,15)/100))
-  ymamnisd <- tapply(yisd, gamnisd, mean)
-  xmamnisd <- tapply(xamnisd, gamnisd, mean)
-  ympamnisd <- logit(ymamnisd/(1-ymamnisd))
-  plot(xmamnisd,ympamnisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="loan_amnt")
-}
-
-# Plot the logitit of failure for each int_rate variable for issue_d
-par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
-  xinrisd <- ext_loan_data$int_rate[isd]
-  yisd <- ext_loan_data$repay_fail[isd]
-  ginrisd <- cut(xinrisd, breaks=quantile(xinrisd,seq(0,100,15)/100))
-  yminrisd <- tapply(yisd, ginrisd, mean)
-  xminrisd <- tapply(xinrisd, ginrisd, mean)
-  ympinrisd <- logit(yminrisd/(1-yminrisd))
-  plot(xminrisd,ympinrisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="int_rate")
-}
-
-# Plot the logitit of failure for each annual_inc variable for issue_d
-par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
-  xaniisd <- ext_loan_data$annual_inc[isd]
-  yisd <- ext_loan_data$repay_fail[isd]
-  ganiisd <- cut(xaniisd, breaks=quantile(xaniisd,seq(0,100,15)/100))
-  ymaniisd <- tapply(yisd, ganiisd, mean)
-  xmaniisd <- tapply(xaniisd, ganiisd, mean)
-  ympaniisd <- logit(ymaniisd/(1-ymaniisd))
-  plot(xmaniisd,ympaniisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="annual_inc")
-}
+```{r exploreext data set random effects, include=TRUE}
+pissuedfail ; pzipcfail ; paddsfail
 ```
 
-```{r exploreext data set zip_code, include=TRUE}
-## Plot the proportion and logit proportion of failure for zip_code
-
-# Obtain number of people in each zip_code
-zipcsum <- count(ext_loan_data, zip_code, .drop = FALSE)
-
-# Obtain number of people that failed in each zip_code
-ext_zipc_fail <- count(ext_loan_data, zip_code, repay_fail == "1", .drop = FALSE)
-ext_zipc_fail <- filter(ext_zipc_fail, ext_zipc_fail$`repay_fail == "1"` == "TRUE")
-ext_zipc_fail$`repay_fail == "1"` <- NULL
-ext_zipc_fail2 <- anti_join(zipcsum, ext_zipc_fail, by = c("zip_code" = "zip_code"))
-ext_zipc_fail2$n <- 0
-ext_zipc_fail <- rbind(ext_zipc_fail, ext_zipc_fail2)
-ext_zipc_fail$zip_code <- gsub("xx","",as.character(ext_zipc_fail$zip_code))
-ext_zipc_fail <- ext_zipc_fail[order(as.integer(ext_zipc_fail$zip_code),decreasing = FALSE), ]
-ext_zipc_fail$zip_code <- paste0(ext_zipc_fail$zip_code, 'xx')
-
-# Obtain proportion and logit(proportion) of failure in each zip_code
-prop_zip_code <- ext_zipc_fail[,2] / zipcsum[,2]
-
-# Obtain proportion and logit(proportion) of failure in each zip_code
-prop_zip_code_logit <- sapply(prop_zip_code, logit)
-propzipcdf <- data.frame(zip_code = zipcsum$zip_code, frequency = prop_zip_code, logit_frequency = prop_zip_code_logit )
-
-pzipcfail <- ggplot(propzipcdf, aes(x=zip_code, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propzipcdf$zip_code) +
-  labs(x = "zip_code",y = "Repay Failure Proportion") 
-
-logitpzipcfail <- ggplot(propzipcdf, aes(x=zip_code, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propzipcdf$zip_code) +
-  labs(x = "zip_code",y = "Repay Failure logit(Proportion)") 
-
-pzipcfail ; logitpzipcfail
-
-# We did not explore the effects of zip code onto each variable since there 1 or very low number of observations in some zip codes
-```
 
 ```{r exploreext data set addr_state, include=TRUE}
-## Plot the proportion and logit proportion of failure for addr_state
-
-# Obtain number of people in each addr_state
-addssum <- count(ext_loan_data, addr_state, .drop = FALSE)
-
-# Obtain number of people that failed in each addr_state
-ext_adds_fail <- count(ext_loan_data, addr_state, repay_fail == "1")
-ext_missingrowAF <- c("ME", "TRUE", "0")
-ext_adds_fail <- rbind(ext_adds_fail, ext_missingrowAF)
-ext_adds_fail <- t(ext_adds_fail)
-ext_adds_fail <- as.data.frame(ext_adds_fail)
-ext_adds_fail <- relocate(ext_adds_fail, V100, .after = V43)
-ext_adds_fail <- t(ext_adds_fail)
-ext_adds_fail <- as.data.frame(ext_adds_fail)
-ext_adds_fail$`repay_fail == "1"` <- as.logical(ext_adds_fail$`repay_fail == "1"`)
-ext_adds_fail$n <- as.numeric(ext_adds_fail$n)
-addsfailsumext <- filter(ext_adds_fail, ext_adds_fail$`repay_fail == "1"` == "TRUE")
-
-# Obtain proportion and logit(proportion) of failure in each addr_state
-prop_addr_state <- addsfailsumext[,3] / addssum[,2]
-
-# Obtain proportion and logit(proportion) of failure in each addr_state
-prop_addr_state_logit <- sapply(prop_addr_state, logit)
-propaddsdf <- data.frame(addr_state = addssum$addr_state, frequency = prop_addr_state, logit_frequency = prop_addr_state_logit )
-
-paddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure Proportion") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-logitpaddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=logit_frequency)) + 
-  geom_dotplot(binaxis='y', stackdir='center') +
-  scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure logit(Proportion)") +
-  theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
-
-paddsfail ; logitpaddsfail
-
 ### Plot the proportion and logit proportion of failure for each variable in addr_state
 
 ## Plot the logitit of failure for each continous variable for addr_state
@@ -798,7 +642,53 @@ for(i in 1:9){
 }
 ```
 
+```{r exploreext data set issue_date, include=TRUE}
+### Plot the proportion and logit proportion of failure for each variable in issue_d
 
+## Plot the logitit of failure for each continous variable for issue_d
+
+# Plot the logitit of failure for each loan_amnt variable for issue_d
+par(mfrow=c(3,3))
+for(i in 1:9){
+  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
+  xamnisd <- ext_loan_data$loan_amnt[isd]
+  yisd <- ext_loan_data$repay_fail[isd]
+  yisd <- as.integer(yisd)
+  yisd[yisd == 1] <- 0
+  yisd[yisd == 2] <- 1
+  gamnisd <- cut(xamnisd, breaks=quantile(xamnisd,seq(0,100,20)/100))
+  ymamnisd <- tapply(yisd, gamnisd, mean)
+  xmamnisd <- tapply(xamnisd, gamnisd, mean)
+  ympamnisd <- log(ymamnisd/(1-ymamnisd))
+  plot(xmamnisd,ympamnisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="loan_amnt",ylab="Repay Failure Logit(Proportion)")
+}
+
+# Plot the logitit of failure for each int_rate variable for issue_d
+par(mfrow=c(3,3))
+for(i in 1:9){
+  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
+  xinrisd <- ext_loan_data$int_rate[isd]
+  yisd <- ext_loan_data$repay_fail[isd]
+  ginrisd <- cut(xinrisd, breaks=quantile(xinrisd,seq(0,100,15)/100))
+  yminrisd <- tapply(yisd, ginrisd, mean)
+  xminrisd <- tapply(xinrisd, ginrisd, mean)
+  ympinrisd <- log(yminrisd/(1-yminrisd))
+  plot(xminrisd,ympinrisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="int_rate",ylab="Repay Failure Logit(Proportion)")
+}
+
+# Plot the logitit of failure for each annual_inc variable for issue_d
+par(mfrow=c(3,3))
+for(i in 1:9){
+  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
+  xaniisd <- ext_loan_data$annual_inc[isd]
+  yisd <- ext_loan_data$repay_fail[isd]
+  ganiisd <- cut(xaniisd, breaks=quantile(xaniisd,seq(0,100,15)/100))
+  ymaniisd <- tapply(yisd, ganiisd, mean)
+  xmaniisd <- tapply(xaniisd, ganiisd, mean)
+  ympaniisd <- log(ymaniisd/(1-ymaniisd))
+  plot(xmaniisd,ympaniisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="annual_inc",ylab="Repay Failure Logit(Proportion)")
+}
+```
 ## Model Building 
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
