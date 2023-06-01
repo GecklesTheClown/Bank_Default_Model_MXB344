@@ -715,7 +715,20 @@ m <- glmer(repay_fail ~
            family = binomial,
            control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
 
-
+#Glmm with interaction term
+m2 <- glmer(repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc + annual_inc*int_rate+ 
+             (1 |addr_state) + 
+             (1|issue_d), 
+           data = extended_loan_data, 
+           family = binomial,
+           control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
 
 ```
 
@@ -737,7 +750,8 @@ plot_summs(forward_sel_model,m, rescale.distributions = TRUE)
 ```
 
 ```{r}
-
+roc.glmm(m)
+roc.glmm(m2)
 ```
 
 
