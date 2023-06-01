@@ -161,6 +161,8 @@ roc.glm(m.initial)
 
 This is good but let's see if stepwise can make it better.
 
+### Stepwise Model 
+
 ```{r M-Build}
 
 #Full model with all possible covariates (one-way)
