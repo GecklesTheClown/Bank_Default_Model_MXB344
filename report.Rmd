@@ -6,7 +6,7 @@ output: html_document
 ---
 
 # Introduction 
-Recently our peer-to-peer lending start-up has been acquired by 'Apollo' a regional Australian bank. This acquisition has prompted an investigation into out companies credit risk model. Results of this investigation has concluded that a complete "ground-up' rebuild is necessary. Thus our team goal in this report is building a statistical model to predict loan default based on information known at the time of application. In regards to this model management have a number of concerns:
+Recently our peer-to-peer lending start-up has been acquired by 'Apollo' a regional Australian bank. This acquisition has prompted an investigation into out companies credit risk model. Results of this investigation has concluded that a complete "ground-up' rebuild is necessary. Thus our team's goal in this report is building a statistical model to predict loan default based on information known at the time of application. In regards to this model management have a number of concerns:
 
 1. How does your new model perform compared to the one you used previously? How can it be expected
 to perform on new loan applications?
