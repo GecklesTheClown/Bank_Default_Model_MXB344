@@ -596,43 +596,75 @@ pissuedfail ; paddsfail
 ```
 We can see that the proportion of repay failure differs significantly for each time (issue date of loan) and for each location (address state). We can see particular that address state "ME" has 0% repay failure and address states "IN" (~36%-38% repay failure) and "NE" (~50% repay failure) have by far the highest proportion of repay failures. We can see that there are no repay failure in June 2007. Therefore, we should consider accounting for the time (issue date) and location (address state) in our model.  
 
-```{r exploreext data set addr_state, include=TRUE}
-### Plot the proportion and logit proportion of failure for each variable in addr_state
 
-## Plot the logitit of failure for each continous variable for addr_state
+We then plotted the logit of the proportion of repay failure against each of the continuous variables, which have been further categorized into address state (the location random effect). This was done to see if address state had an effect on the linear assumption of the logit of proportion of repay failure. We have not done this for all address states as for some address states there is not enough data to effectively do this. The rule of thumb was that a address state had to have at least 100 applicants to do this graph for. The rule of thumb was that a issue date had to have at least 150 applicants to do this graph for. 
 
-# Plot the logitit of failure for each loan_amnt variable for addr_state
+Here are these plots for the loan amount vs logit of proportion of repay failure for each address state. The address states that were not able to be plotted like this are AK, IA, ID, IN, ME, MS, MT, NE, SD, TN, VT and WY. 
+
+```{r logit of proportion of repay failure vs loan amount for each address state (ext_loan_data)}
+
+# Create new set of address states that we can do these plots for
+new_addssum <- addssum[-c(1, 13, 14, 16, 22, 26, 27, 29, 41, 42, 46, 50), ]
+
+# Plot the logit of failure for loan_amnt variable for first 9 addr_state
 par(mfrow=c(3,3))
-for(i in 1:9){
-  ads <- which(ext_loan_data$addr_state == addssum[i,1])
+for(i in 1:38){
+  ads <- which(ext_loan_data$addr_state == new_addssum[i,1])
   xamnads <- ext_loan_data$loan_amnt[ads]
   yads <- ext_loan_data$repay_fail[ads]
-  gamnads <- cut(xamnads, breaks=quantile(xamnads,seq(0,100,15)/100))
+  yads <- as.integer(yads)
+  yads[yads == 1] <- 0
+  yads[yads == 2] <- 1
+  gamnads <- cut(xamnads, breaks=quantile(xamnads,seq(0,100,20)/100))
   ymamnads <- tapply(yads, gamnads, mean)
   xmamnads <- tapply(xamnads, gamnads, mean)
   ympamnads <- logit(ymamnads/(1-ymamnads))
   plot(xmamnads,ympamnads,main=paste("addr_state = ",addssum[i,1]),xlab="loan_amnt")
 }
+```
 
-# Plot the logitit of failure for each int_rate variable for addr_state
+
+Here are these plots for the interest rate vs logit of proportion of repay failure for each address state.
+
+```{r logit of proportion of repay failure vs interest rate for each address state (ext_loan_data)}
+
+# Create new set of address states that we can do these plots for
+new_addssum <- addssum[-c(1, 13, 14, 16, 22, 26, 27, 29, 41, 42, 46, 50), ]
+
+# Plot the logit of failure for each int_rate variable for addr_state
 par(mfrow=c(3,3))
-for(i in 1:9){
-  ads <- which(ext_loan_data$addr_state == addssum[i,1])
+for(i in 1:38){
+  ads <- which(ext_loan_data$addr_state == new_addssum[i,1])
   xinrads <- ext_loan_data$int_rate[ads]
   yads <- ext_loan_data$repay_fail[ads]
+  yads <- as.integer(yads)
+  yads[yads == 1] <- 0
+  yads[yads == 2] <- 1
   ginrads <- cut(xinrads, breaks=quantile(xinrads,seq(0,100,15)/100))
   yminrads <- tapply(yads, ginrads, mean)
   xminrads <- tapply(xinrads, ginrads, mean)
   ympinrads <- logit(yminrads/(1-yminrads))
   plot(xminrads,ympinrads,main=paste("addr_state = ",addssum[i,1]),xlab="int_rate")
 }
+```
 
-# Plot the logitit of failure for each annual_inc variable for addr_state
+
+Here are these plots for the annual income vs logit of proportion of repay failure for each address state.
+
+```{r logit of proportion of repay failure vs annual income for each address state (ext_loan_data)}
+
+# Create new set of address states that we can do these plots for
+new_addssum <- addssum[-c(1, 13, 14, 16, 22, 26, 27, 29, 41, 42, 46, 50), ]
+
+# Plot the logit of failure for each annual_inc variable for addr_state
 par(mfrow=c(3,3))
-for(i in 1:9){
-  ads <- which(ext_loan_data$addr_state == addssum[i,1])
+for(i in 1:38){
+  ads <- which(ext_loan_data$addr_state == new_addssum[i,1])
   xaniads <- ext_loan_data$annual_inc[ads]
   yads <- ext_loan_data$repay_fail[ads]
+  yads <- as.integer(yads)
+  yads[yads == 1] <- 0
+  yads[yads == 2] <- 1
   ganiads <- cut(xaniads, breaks=quantile(xaniads,seq(0,100,15)/100))
   ymaniads <- tapply(yads, ganiads, mean)
   xmaniads <- tapply(xaniads, ganiads, mean)
@@ -641,15 +673,18 @@ for(i in 1:9){
 }
 ```
 
-```{r exploreext data set issue_date, include=TRUE}
-### Plot the proportion and logit proportion of failure for each variable in issue_d
 
-## Plot the logitit of failure for each continous variable for issue_d
+Here are the plots for the loan amount vs logit of proportion of repay failure for each issue date. The issue dates that were not able to be plotted like this are Aug-2007, Aug-2008, Jul-2007, Jul-2008, Jun-2007, Jun-2008, May-2008, Nov-2007, Oct-2007, Oct-2008, Sept-2007, Sept-2008.
 
-# Plot the logitit of failure for each loan_amnt variable for issue_d
+```{r logit of proportion of repay failure vs loan amount for each issue date (ext_loan_data)}
+
+# Create new set of address states that we can do these plots for
+new_issuedsum <- issuedsum[-c(5, 6, 23, 24, 28, 29, 37, 41, 46, 47, 51, 52), ]
+
+# Plot the logit of failure for each loan_amnt variable for issue_d
 par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
+for(i in 1:43){
+  isd <- which(ext_loan_data$issue_d == new_issuedsum[i,1])
   xamnisd <- ext_loan_data$loan_amnt[isd]
   yisd <- ext_loan_data$repay_fail[isd]
   yisd <- as.integer(yisd)
@@ -661,33 +696,61 @@ for(i in 1:9){
   ympamnisd <- log(ymamnisd/(1-ymamnisd))
   plot(xmamnisd,ympamnisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="loan_amnt",ylab="Repay Failure Logit(Proportion)")
 }
+```
 
-# Plot the logitit of failure for each int_rate variable for issue_d
+
+Here are the plots for the interest rate vs logit of proportion of repay failure for each issue date. 
+
+```{r logit of proportion of repay failure vs interest rate for each issue date (ext_loan_data)}
+
+# Create new set of address states that we can do these plots for
+new_issuedsum <- issuedsum[-c(5, 6, 23, 24, 28, 29, 37, 41, 46, 47, 51, 52), ]
+
+# Plot the logit of failure for each int_rate variable for issue_d
 par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
+for(i in 1:43){
+  isd <- which(ext_loan_data$issue_d == new_issuedsum[i,1])
   xinrisd <- ext_loan_data$int_rate[isd]
   yisd <- ext_loan_data$repay_fail[isd]
-  ginrisd <- cut(xinrisd, breaks=quantile(xinrisd,seq(0,100,15)/100))
+  yisd <- as.integer(yisd)
+  yisd[yisd == 1] <- 0
+  yisd[yisd == 2] <- 1
+  ginrisd <- cut(xinrisd, breaks=quantile(xinrisd,seq(0,100,20)/100))
   yminrisd <- tapply(yisd, ginrisd, mean)
   xminrisd <- tapply(xinrisd, ginrisd, mean)
   ympinrisd <- log(yminrisd/(1-yminrisd))
   plot(xminrisd,ympinrisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="int_rate",ylab="Repay Failure Logit(Proportion)")
 }
+```
 
-# Plot the logitit of failure for each annual_inc variable for issue_d
+
+Here are the plots for the annual income vs logit of proportion of repay failure for each issue date. 
+
+```{r logit of proportion of repay failure vs annual income for each issue date (ext_loan_data)}
+
+# Create new set of address states that we can do these plots for
+new_issuedsum <- issuedsum[-c(5, 6, 23, 24, 28, 29, 37, 41, 46, 47, 51, 52), ]
+
+# Plot the logit of failure for each annual_inc variable for issue_d
 par(mfrow=c(3,3))
-for(i in 1:9){
-  isd <- which(ext_loan_data$issue_d == issuedsum[i,1])
+for(i in 1:43){
+  isd <- which(ext_loan_data$issue_d == new_issuedsum[i,1])
   xaniisd <- ext_loan_data$annual_inc[isd]
   yisd <- ext_loan_data$repay_fail[isd]
-  ganiisd <- cut(xaniisd, breaks=quantile(xaniisd,seq(0,100,15)/100))
+  yisd <- ext_loan_data$repay_fail[isd]
+  yisd <- as.integer(yisd)
+  yisd[yisd == 1] <- 0
+  yisd[yisd == 2] <- 1
+  ganiisd <- cut(xaniisd, breaks=quantile(xaniisd,seq(0,100,20)/100))
   ymaniisd <- tapply(yisd, ganiisd, mean)
   xmaniisd <- tapply(xaniisd, ganiisd, mean)
   ympaniisd <- log(ymaniisd/(1-ymaniisd))
   plot(xmaniisd,ympaniisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="annual_inc",ylab="Repay Failure Logit(Proportion)")
 }
 ```
+
+
+
 ## Model Building 
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
