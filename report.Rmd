@@ -155,7 +155,7 @@ We will plot the proportions of repay failure (loan default) against each of our
 source(here("scripts","prop_data.r"))
 ```
 
-Plotted proportions
+Plotted proportions. The first plot is for term, second is for employment length, third is for home ownership, fourth is for verification status and fifth is for loan purpose.
 
 ```{r proportion plot for catagorical variables & discrete variable (all_loan_data)}
 graph_allptermfail ; graph_allpempfail ; graph_allphomefail ; graph_allpverifail ; graph_allppurpfail 
@@ -168,7 +168,7 @@ Loans for small businesses (small_business) have by the highest proportion of re
 The applicants who are not employed or did not provide such information (n/a) have the highest proportions of repay failure at 22.2%. There does not appear to be any trend in the proportion of repay failure of applicants for increasing employment length. 
 
 
-We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. Additionally, we tested the 3 continuous variables for co linearity/interactions. We will also be doing an additional plot for only the median and 25-75% of data for annual income due to outliers making it hard to visualize the data.
+We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. Additionally, we tested the 3 continuous variables for co linearity/interactions. We will also be doing an additional plot for only the median and 25-75% of data for annual income due to outliers making it hard to visualize the data. The first plot is for loan amount, second is for interest rate, third and fourth are for annual income (the fourth is the 25%-75% of the data), and the fifth plot is the correlation test (with some information on the distribution of the continuous variables).
 
 ```{r continous variables plot and co linearity test (all_loan_data)}
 
@@ -212,11 +212,13 @@ pannualincome <- ggplot(data = all_loan_data,
   labs(x = "Repay Fail",y = "Annual_inc")
 pannualincome
 
+# Box plot for 25-75% of data for annaul inc vs repay fail
 ggplot(data = all_loan_data) + stat_summary(
   mapping = aes(x = repay_fail, y = annual_inc),
   fun.min = function(z) { quantile(z,0.25) },
   fun.max = function(z) { quantile(z,0.75) },
-  fun = median)
+  fun = median) +
+  labs(x = "Repay Fail",y = "Annual_inc")
 
 # Test for colinarity 
 cortest <- ggpairs(all_loan_data, columns = c(1, 3, 6))
@@ -227,7 +229,7 @@ Both no repay failure (0) and repay failure (1) have similar loan amounts hence 
 The loan amount has a positive correlation with interest rate and annual income while interest rate and annual income has a low positive correlation. The correlation between loan amount and interest rate is 0.29 which is high enough to consider that there is an interaction between interest rate and loan amount. The correlation between loan amount and annual income (0.342), which is high enough to consider that there is an interaction between annual income and loan amount, also the correlation is slightly higher than that of the correlation between loan amount and interest rate. In conclusion there is a moderate interaction, which can affect the model, between loan amount and interest rate and between loan amount and annual income while there is a slight interaction, not enought to affect the model in a meaningful way, between interest rate and annual income. 
 
 
-We done violin plots between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors.  
+We done violin plots between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors. First plot is for loan amount, second plot is for interest rate and third plot is for annual income.
 
 ```{r relationship between discrete variable and the continous variables (all_loan_data)}
 ## Kernal/Violin plots of emp_lenth vs 3 continuous variables in all_loan_data
@@ -259,7 +261,7 @@ ggplot(tmp, aes(x = emp_length, y = value)) +
 The distribution of loan amount for each employment length is slightly right skewed. The distributions appear to become slightly less skewed for increasing employment length however this is a small difference and is not significant enough to consider that employment length has an interaction with loan_amount. There appear to be no trend of the distributions of annual income and interest rate with increasing employment length for the other two plots. Interactions that can affect the model between employment length and the three other continuous variables does not exist. 
 
 
-We then sorted the continuous variables in 20 groups. Then we found the logit of the proportions for of repay failure of each group and plotted them to determine if the logit of the proportion of repay failure had a linear relationship with the continuous variables. If so then then a logistic regression can be used to fit for the data (that contains binary outcomes) since one of the assumptions of logistic regression is that the logit of the proportion of observations has a linear relationship with the continuous variables. The logit is log(y/(1-y)).
+We then sorted the continuous variables in 20 groups. Then we found the logit of the proportions for of repay failure of each group and plotted them to determine if the logit of the proportion of repay failure had a linear relationship with the continuous variables. If so then then a logistic regression can be used to fit for the data (that contains binary outcomes) since one of the assumptions of logistic regression is that the logit of the proportion of observations has a linear relationship with the continuous variables. The logit is log(y/(1-y)). First plot is for loan amount, second plot is for interest rate, and third plot is for annual income.
 
 ```{r logit proportion of repay failure vs the continous variables (all_loan_data)}
 ### Do logistic exploration for all_loan_data
@@ -273,7 +275,7 @@ gala <- cut(xa1, breaks=quantile(xa1,seq(0,100,5)/100))
 yamla <- tapply(ya, gala, mean)
 xamla <- tapply(xa1, gala, mean)
 yampla <- log(yamla/(1-yamla))
-plot(xamla,yampla,xlab="loan_amnt")
+plot(xamla,yampla,xlab="Loan_amnt",ylab="Logit of Proportion of Repay Failure")
 
 ## Explore relationship between log(p/(1-p)) for int_rate
 xa2 <- all_loan_data$int_rate
@@ -281,7 +283,7 @@ gair <- cut(xa2, breaks=quantile(xa2,seq(0,100,5)/100))
 yamir <- tapply(ya, gair, mean)
 xamir <- tapply(xa2, gair, mean)
 yampir <- log(yamir/(1-yamir))
-plot(xamir,yampir,xlab="int_rate")
+plot(xamir,yampir,xlab="Int_rate",ylab="Logit of Proportion of Repay Failure")
 
 ## Explore relationship between log(p/(1-p)) for annual_inc
 xa3 <- all_loan_data$annual_inc
@@ -289,7 +291,7 @@ gaai <- cut(xa3, breaks=quantile(xa3,seq(0,100,5)/100))
 yamai <- tapply(ya, gaai, mean)
 xamai <- tapply(xa3, gaai, mean)
 yampai <- log(yamai/(1-yamai))
-plot(xamai,yampai,xlab="annual_inc")
+plot(xamai,yampai,xlab="Annual_inc",ylab="Logit of Proportion of Repay Failure")
 ```
 We can see that there is a rough positive linear relationship between the logit of proportion of repay failure and loan amount. We can also see that there is a strong positive linear relationship between the logit of proportion of repay failure and interest rate. We can also see that there is a moderate negative linear relationship between the logit of proportion of repay failure and annual income. However this could be a quadratic relationship for the annual income with the logit of proportion of repay failure as shown by the logit of the last and second last groups going back up but there is not enough data points in between the last group and the second last group to determine if this is the case. In conclusion we can suggest using a logistic regression to fit the data provided since the assumption of linearity of logit observations vs continuous predictors is met. 
 
@@ -451,7 +453,7 @@ plot_summs(nested1, ci_level = 0.95)
 ## Exploration
 We have been provided with an extended data set that contains our random effects (we will only consider 2 of them for model fitting). We will do a separate exploratory analysis for the extended data set due to it having 38419 applicants while the normal data set has 30735. Thus there could be changes to the relationships and observations made in the previous exploratory analysis for the normal data set (without the random effects)
 
-Plotted the proportions of repay failure against our 4 categorical variables and 1 of our discrete variables (that has been categorized). 
+Plotted the proportions of repay failure against our 4 categorical variables and 1 of our discrete variables (that has been categorized). The first plot is for term, second is for employment length, third is for home ownership, fourth is for verification status and fifth is for loan purpose.
 
 ```{r proportion plot for catagorical variables & discrete variable (ext_loan_data)}
 graph_extptermfail ; graph_extpempfail ; graph_extphomefail ; graph_extpverifail ; graph_extppurpfail 
@@ -464,7 +466,7 @@ The small business loan have the highest proportion of repay failure which is ~2
 Employment length classified as n/a has the highest proportion of repay failure which is at ~22-22.5%. There does not appear to be a trend in the increasing employment length and proportion of repay failure. 
 
 
-We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. And, we tested the 3 continuous variables for co linearity. We will also be doing an additional plot for only the median and 25-75% of data for annual income due to outliers making it hard to visualize the data.
+We plotted the 3 continuous variables against repay failure by making repay failure a categorical variable and the continuous variables the y-axis. And, we tested the 3 continuous variables for co linearity. We will also be doing an additional plot for only the median and 25-75% of data for annual income due to outliers making it hard to visualize the data. The first plot is for loan amount, second is for interest rate, third and fourth are for annual income (the fourth is the 25%-75% of the data), and the fifth plot is the correlation test (with some information on the distribution of the continuous variables).
 
 ```{r continous variables plot and co linearity test (ext_loan_data)}
 
@@ -508,11 +510,13 @@ pannualincome <- ggplot(data = ext_loan_data,
   labs(x = "Repay Fail",y = "Annual_inc")
 pannualincome
 
+# Box plot for 25-75% of data for annual inc vs repay fail
 ggplot(data = ext_loan_data) + stat_summary(
   mapping = aes(x = repay_fail, y = annual_inc),
   fun.min = function(z) { quantile(z,0.25) },
   fun.max = function(z) { quantile(z,0.75) },
-  fun = median)
+  fun = median) +
+  labs(x = "Repay Fail",y = "Annual_inc")
 
 # Test for colinarity 
 cortest <- ggpairs(ext_loan_data, columns = c(2, 4, 7))
@@ -522,7 +526,7 @@ Just like in the previous data set, both no repay failure (0) and repay failure 
 
 Just like in the previous data set, the loan amount has a positive correlation with interest rate and annual income while interest rate and annual income has a low positive correlation. The correlation between loan amount and interest rate is 0.292 which is high enough to consider that there is an interaction between interest rate and loan amount. The correlation between loan amount and annual income (0.277), which is high enough to consider that there is an interaction between annual income and loan amount, also the correlation is slightly lower than that of the correlation between loan amount and interest rate. In conclusion there is a moderate interaction, which can affect the model, between loan amount and interest rate and between loan amount and annual income while there is a slight interaction, which will only have very minor effects on the model, between interest rate and annual income. 
 
-We plotted violin plots between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors.  
+We plotted violin plots between our discrete variable (employment length) and the three continuous variables to examine the relationship between the discrete predictor and the different continuous predictors. First plot is for loan amount, second plot is for interest rate and third plot is for annual income.
 
 ```{r relationship between discrete variable and the continous variables (ext_loan_data)}
 ## Kernal/Violin plots of emp_lenth vs 3 continuous variables in all_loan_data
@@ -554,7 +558,7 @@ ggplot(tmp, aes(x = emp_length, y = value)) +
 Just like in the previous data set, the distribution of loan amount for each employment length is slightly right skewed. The distributions appear to become slightly less skewed for increasing employment length however this is a small difference and is not significant enough to consider that employment length has an interaction with loan_amount. There appear to be no trend of the distributions of annual income and interest rate with increasing employment length for the other two plots. Interactions that can affect the model between employment length and the three other continuous variables does not exist. 
 
 
-Just like in the previous data set, we then sorted the continuous variables in 20 groups. Then we found the logit of the proportions for of repay failure of each group and plotted them to determine if the logit of the proportion of repay failure had a linear relationship with the continuous variables. If so then then a logistic regression can be used to fit for the data (that contains binary outcomes) since one of the assumptions of logistic regression is that the logit of the proportion of observations has a linear relationship with the continuous variables. The logit is log(y/(1-y)).
+Just like in the previous data set, we then sorted the continuous variables in 20 groups. Then we found the logit of the proportions for of repay failure of each group and plotted them to determine if the logit of the proportion of repay failure had a linear relationship with the continuous variables. If so then then a logistic regression can be used to fit for the data (that contains binary outcomes) since one of the assumptions of logistic regression is that the logit of the proportion of observations has a linear relationship with the continuous variables. The logit is log(y/(1-y)). First plot is for loan amount, second plot is for interest rate, and third plot is for annual income.
 
 ```{r logit proportion of repay failure vs the continous variables (ext_loan_data)}
 ### Do logistic exploration for all_loan_data
@@ -568,7 +572,7 @@ gla <- cut(x1, breaks=quantile(x1,seq(0,100,5)/100))
 ymla <- tapply(y, gla, mean)
 xmla <- tapply(x1, gla, mean)
 ympla <- log(ymla/(1-ymla))
-plot(xmla,ympla,xlab="loan_amnt")
+plot(xmla,ympla,xlab="Loan_amnt",ylab="Logit of Proportion of Repay Failure")
 
 ## Explore relationship between log(p/(1-p)) for int_rate
 x2 <- ext_loan_data$int_rate
@@ -576,7 +580,7 @@ gir <- cut(x2, breaks=quantile(x2,seq(0,100,5)/100))
 ymir <- tapply(y, gir, mean)
 xmir <- tapply(x2, gir, mean)
 ympir <- log(ymir/(1-ymir))
-plot(xmir,ympir,xlab="int_rate")
+plot(xmir,ympir,xlab="Int_rate",ylab="Logit of Proportion of Repay Failure")
 
 ## Explore relationship between log(p/(1-p)) for annual_inc
 x3 <- ext_loan_data$annual_inc
@@ -584,7 +588,7 @@ gai <- cut(x3, breaks=quantile(x3,seq(0,100,5)/100))
 ymai <- tapply(y, gai, mean)
 xmai <- tapply(x3, gai, mean)
 ympai <- log(ymai/(1-ymai))
-plot(xmai,ympai,xlab="annual_inc")
+plot(xmai,ympai,xlab="Annual_inc",ylab="Logit of Proportion of Repay Failure")
 ```
 Just like in the previous data set, we can see that there is a rough positive linear relationship between the logit of proportion of repay failure and loan amount. We can also see that there is a strong positive linear relationship between the logit of proportion of repay failure and interest rate. We can also see that there is a moderate negative linear relationship between the logit of proportion of repay failure and annual income. However this could be a quadratic relationship for the annual income with the logit of proportion of repay failure as shown by the logit of the last and second last groups going back up but there is not enough data points in between the last group and the second last group to determine if this is the case. In conclusion we can suggest using a logistic regression to fit the data provided since the assumption of linearity of logit observations vs continuous predictors is met. 
 
@@ -621,7 +625,7 @@ for(i in 1:38){
   ymamnads <- tapply(yads, gamnads, mean)
   xmamnads <- tapply(xamnads, gamnads, mean)
   ympamnads <- logit(ymamnads/(1-ymamnads))
-  plot(xmamnads,ympamnads,main=paste("addr_state = ",addssum[i,1]),xlab="loan_amnt")
+  plot(xmamnads,ympamnads,main=paste("addr_state = ",addssum[i,1]),xlab="Loan_amnt",ylab="Logit(Proportion)")
 }
 ```
 We can see that there still exists a rough positive linear relationship between the logit of the repay failure and loan amount for most of the address states.
@@ -646,7 +650,7 @@ for(i in 1:38){
   yminrads <- tapply(yads, ginrads, mean)
   xminrads <- tapply(xinrads, ginrads, mean)
   ympinrads <- logit(yminrads/(1-yminrads))
-  plot(xminrads,ympinrads,main=paste("addr_state = ",addssum[i,1]),xlab="int_rate")
+  plot(xminrads,ympinrads,main=paste("addr_state = ",addssum[i,1]),xlab="Int_rate",ylab="Logit(Proportion)")
 }
 ```
 We can see that there still exists a strong positive linear relationship between the logit of the repay failure and interest rate for most of the address states.
@@ -671,7 +675,7 @@ for(i in 1:38){
   ymaniads <- tapply(yads, ganiads, mean)
   xmaniads <- tapply(xaniads, ganiads, mean)
   ympaniads <- logit(ymaniads/(1-ymaniads))
-  plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc")
+  plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc",ylab="Logit(Proportion)")
 }
 ```
 We can see that there still exists a moderate negative linear relationship between the logit of the repay failure and annual incrome for most of the address states.
@@ -696,7 +700,7 @@ for(i in 1:43){
   ymamnisd <- tapply(yisd, gamnisd, mean)
   xmamnisd <- tapply(xamnisd, gamnisd, mean)
   ympamnisd <- log(ymamnisd/(1-ymamnisd))
-  plot(xmamnisd,ympamnisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="loan_amnt",ylab="Repay Failure Logit(Proportion)")
+  plot(xmamnisd,ympamnisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="Loan_amnt",ylab="Logit(Proportion)")
 }
 ```
 We can see that there still exists a rough positive linear relationship between the logit of the repay failure and loan amount for most of the issue dates.
@@ -721,7 +725,7 @@ for(i in 1:43){
   yminrisd <- tapply(yisd, ginrisd, mean)
   xminrisd <- tapply(xinrisd, ginrisd, mean)
   ympinrisd <- log(yminrisd/(1-yminrisd))
-  plot(xminrisd,ympinrisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="int_rate",ylab="Repay Failure Logit(Proportion)")
+  plot(xminrisd,ympinrisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="Int_rate",ylab="Logit(Proportion)")
 }
 ```
 We can see that there still exists a strong positive linear relationship between the logit of the repay failure and interest rate for most of the issue dates.
@@ -747,12 +751,12 @@ for(i in 1:43){
   ymaniisd <- tapply(yisd, ganiisd, mean)
   xmaniisd <- tapply(xaniisd, ganiisd, mean)
   ympaniisd <- log(ymaniisd/(1-ymaniisd))
-  plot(xmaniisd,ympaniisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="annual_inc",ylab="Repay Failure Logit(Proportion)")
+  plot(xmaniisd,ympaniisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="Annual_inc",ylab="Logit(Proportion)")
 }
 ```
 We can see that there still exists a moderate negative linear relationship between the logit of the repay failure and annual income for most of the issue dates.
 
-In conclusion we will still consider doing a logistic regression when accounting for the time and location random effects. Thus we will consider doing a logistic regression for the generalised linear mixed effects model (GLMM).
+In conclusion we will still consider doing a logistic regression when accounting for the time and location random effects. Thus, we will consider doing a logistic regression for the generalized linear mixed effects model (GLMM) as hour final model.
 
 
 ## Model Building 

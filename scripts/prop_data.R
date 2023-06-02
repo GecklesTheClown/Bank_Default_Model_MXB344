@@ -19,13 +19,13 @@ allproptermdf <- data.frame(term = alltermsum$term, frequency = allprop_term, lo
 graph_allptermfail <- ggplot(allproptermdf, aes(x=term, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allproptermdf$term) +
-  labs(x = "term",y = "Repay Failure Proportion") +
+  labs(x = "Term",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_alllogitptermfail <- ggplot(allproptermdf, aes(x=term, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allproptermdf$term) +
-  labs(x = "term",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Term",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_allptermfail ; graph_alllogitptermfail
@@ -81,13 +81,13 @@ allprophomedf <- data.frame(home_ownership = allhomesum$home_ownership, frequenc
 graph_allphomefail <- ggplot(allprophomedf, aes(x=home_ownership, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure Proportion") +
+  labs(x = "Home_ownership",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_alllogitphomefail <- ggplot(allprophomedf, aes(x=home_ownership, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Home_ownership",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_allphomefail ; graph_alllogitphomefail
@@ -112,13 +112,13 @@ allpropveridf <- data.frame(verification_status = allverisum$verification_status
 graph_allpverifail <- ggplot(allpropveridf, aes(x=verification_status, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure Proportion") +
+  labs(x = "Verification_status",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_alllogitpverifail <- ggplot(allpropveridf, aes(x=verification_status, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Verification_status",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_allpverifail ; graph_alllogitpverifail
@@ -143,13 +143,13 @@ allproppurpdf <- data.frame(purpose = allpurpsum$purpose, frequency = allprop_pu
 graph_allppurpfail <- ggplot(allproppurpdf, aes(x=purpose, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure Proportion") +
+  labs(x = "Purpose",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_alllogitppurpfail <- ggplot(allproppurpdf, aes(x=purpose, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = allproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Purpose",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_allppurpfail ; graph_alllogitppurpfail
@@ -176,13 +176,13 @@ extproptermdf <- data.frame(term = exttermsum$term, frequency = extprop_term, lo
 graph_extptermfail <- ggplot(extproptermdf, aes(x=term, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extproptermdf$term) +
-  labs(x = "term",y = "Repay Failure Proportion") +
+  labs(x = "Term",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extlogitptermfail <- ggplot(extproptermdf, aes(x=term, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extproptermdf$term) +
-  labs(x = "term",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Term",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extptermfail ; graph_extlogitptermfail
@@ -238,13 +238,13 @@ extprophomedf <- data.frame(home_ownership = exthomesum$home_ownership, frequenc
 graph_extphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure Proportion") +
+  labs(x = "Home_ownership",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extlogitphomefail <- ggplot(extprophomedf, aes(x=home_ownership, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extprophomedf$home_ownership) +
-  labs(x = "home_ownership",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Home_ownership",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extphomefail ; graph_extlogitphomefail
@@ -269,13 +269,13 @@ extpropveridf <- data.frame(verification_status = extverisum$verification_status
 graph_extpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure Proportion") +
+  labs(x = "Verification_status",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extlogitpverifail <- ggplot(extpropveridf, aes(x=verification_status, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extpropveridf$verification_status) +
-  labs(x = "verification_status",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Verification_status",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extpverifail ; graph_extlogitpverifail
@@ -300,13 +300,13 @@ extproppurpdf <- data.frame(purpose = extpurpsum$purpose, frequency = extprop_pu
 graph_extppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure Proportion") +
+  labs(x = "Purpose",y = "Repay Failure Proportion") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extlogitppurpfail <- ggplot(extproppurpdf, aes(x=purpose, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = extproppurpdf$purpose) +
-  labs(x = "purpose",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Purpose",y = "Repay Failure logit(Proportion)") +
   theme(axis.text.x = element_text(angle = -45,vjust = 0,hjust = 0))
 
 graph_extppurpfail ; graph_extlogitppurpfail
@@ -340,13 +340,13 @@ propissueddf <- data.frame(issue_d = issuedsum$issue_d, frequency = prop_issue_d
 pissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure Proportion") +
+  labs(x = "Issue_d",y = "Proportion of Repay Failure") +
   theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 logitpissuedfail <- ggplot(propissueddf, aes(x=issue_d, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propissueddf$issue_d) +
-  labs(x = "issue_d",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Issue_d",y = "Logit of Proportion of Repay Failure") +
   theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 pissuedfail ; logitpissuedfail
@@ -416,13 +416,13 @@ propaddsdf <- data.frame(addr_state = addssum$addr_state, frequency = prop_addr_
 paddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure Proportion") +
+  labs(x = "Addr_state",y = "Proportion of Repay Failure") +
   theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 logitpaddsfail <- ggplot(propaddsdf, aes(x=addr_state, y=logit_frequency)) + 
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_x_discrete(labels = propaddsdf$addr_state) +
-  labs(x = "addr_state",y = "Repay Failure logit(Proportion)") +
+  labs(x = "Addr_state",y = "Logit of Proportion of Repay Failure") +
   theme(axis.text.x = element_text(angle = -90,vjust = 0,hjust = 0))
 
 paddsfail ; logitpaddsfail
