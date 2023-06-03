@@ -40,9 +40,9 @@ Though however, we explicitly stated our model would be based on the knowledge a
 
 # Results 
 
-Initial models were produced using domain knowledge and exploratory plots. These were then compared to our previous model prior to the acquisition. After assessing the new models, exploration into using an algorithmic selection approach to find important variables. This yielded better results which can be seen below.
+Initial models were produced using domain knowledge and exploratory plots. These were then compared to our previous model prior to the acquisition. After assessing the new models, exploration into using an algorithmic selection approach to find important variables. This yielded better results which can be seen below. During exploration discrepancies could be seen between groups in terms of both time and location. This lead to the decision to try a mixed effects model to account for these. Comparing to our previous model and final fixed effects model we can see an all round improvement when accounting for these discrepancies. The comparison of our models can be found below.
 
-During exploration discrepancies could be seen between groups in terms of both time and location. This lead to the decision to try a mixed effects model to account for these. Comparing to our previous model and final fixed effects model we can see an all round improvement when accounting for these discrepancies. 
+![](pic1.png)
 
 
 
