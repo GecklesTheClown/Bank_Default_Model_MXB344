@@ -684,14 +684,14 @@ plot(xmai,ympai,xlab="Annual_inc",ylab="Logit of Proportion of Repay Failure")
 Just like in the previous data set, we can see that there is a rough positive linear relationship between the logit of proportion of repay failure and loan amount. We can also see that there is a strong positive linear relationship between the logit of proportion of repay failure and interest rate. We can also see that there is a moderate negative linear relationship between the logit of proportion of repay failure and annual income. However this could be a quadratic relationship for the annual income with the logit of proportion of repay failure as shown by the logit of the last and second last groups going back up but there is not enough data points in between the last group and the second last group to determine if this is the case. In conclusion we can suggest using a logistic regression to fit the data provided since the assumption of linearity of logit observations vs continuous predictors is met. 
 
 
-We then plotted the proportion of failure for our random effects to determine if the proportions differ within each location (address state and zip code) and if the proportions differ with time (issue date of loan and earliest credit line). We did plots for address state (addr_state) as the location random effect and issue date of loan (issue_d) as the time random effect since they have a decent amount of data points for each time/location, which we can breifly explore its effects on the linearity assumption of the logistic regression model. 
+We then plotted the proportion of failure for our random effects to determine if the proportions differ within each location (address state and zip code) and if the proportions differ with time (issue date of loan and earliest credit line). We did plots for address state (addr_state) as the location random effect and issue date of loan (issue_d) as the time random effect since they have a decent amount of data points for each time/location, which we can briefly explore its effects on the linearity assumption of the logistic regression model. 
 
-Here are the plots
+Here are the plots. The first plot is for issue date and second plot is for address state.
 
 ```{r proprtion of repyay failure vs random effects (ext_loan_data)}
 pissuedfail ; paddsfail
 ```
-We can see that the proportion of repay failure differs significantly for each time (issue date of loan) and for each location (address state). We can see particular that address state "ME" has 0% repay failure and address states "IN" (~36%-38% repay failure) and "NE" (~50% repay failure) have by far the highest proportion of repay failures. We can see that there are no repay failure in June 2007. Therefore, we should consider accounting for the time (issue date) and location (address state) in our model. Therefore we will use a generalized linear mixed effects model for our final model since the random effects does effect our proportion of repay failure. 
+We can see that the proportion of repay failure differs significantly for each time (issue date of loan) and for each location (address state). We can see particular that address state "ME" has 0% repay failure and address states "IN" (~36%-38% repay failure) and "NE" (~50% repay failure) have by far the highest proportion of repay failures. We can see that there are no repay failure in June 2007. Therefore, we should consider accounting for the time (issue date) and location (address state) in our model. Therefore we will use a generalized linear mixed effects model for our final model since the random effects does effect our proportion of repay failure. Furthermore, this answer one you the inquired which is, "Does credit risk change over time or between states?", which indeed credit risk (proportion of repay failure) does change between issue date and address states. 
 
 
 We then plotted the logit of the proportion of repay failure against each of the continuous variables, which have been further categorized into address state (the location random effect). This was done to see if address state had an effect on the linear assumption of the logit of proportion of repay failure. We have not done this for all address states as for some address states there is not enough data to effectively do this. The rule of thumb was that a address state had to have at least 100 applicants to do this graph for. The rule of thumb was that a issue date had to have at least 150 applicants to do this graph for. 
@@ -719,7 +719,7 @@ for(i in 1:38){
   plot(xmamnads,ympamnads,main=paste("addr_state = ",addssum[i,1]),xlab="Loan_amnt",ylab="Logit(Proportion)")
 }
 ```
-We can see that there still exists a rough positive linear relationship between the logit of the repay failure and loan amount for most of the address states.
+We can see that there still exists a rough positive linear relationship between the logit of the repay failure and loan amount for most of the address states. Additionally, the logit of the proportion of repay failure are different for each state which shows that address state has an effect on the proportion of repay failure. 
 
 Here are these plots for the interest rate vs logit of proportion of repay failure for each address state.
 
@@ -744,7 +744,7 @@ for(i in 1:38){
   plot(xminrads,ympinrads,main=paste("addr_state = ",addssum[i,1]),xlab="Int_rate",ylab="Logit(Proportion)")
 }
 ```
-We can see that there still exists a strong positive linear relationship between the logit of the repay failure and interest rate for most of the address states.
+We can see that there still exists a strong positive linear relationship between the logit of the repay failure and interest rate for most of the address states. Additionally, the logit of the proportion of repay failure are different for each state which also shows that address state has an effect on the proportion of repay failure. 
 
 Here are these plots for the annual income vs logit of proportion of repay failure for each address state.
 
@@ -769,7 +769,8 @@ for(i in 1:38){
   plot(xmaniads,ympaniads,main=paste("addr_state = ",addssum[i,1]),xlab="annual_inc",ylab="Logit(Proportion)")
 }
 ```
-We can see that there still exists a moderate negative linear relationship between the logit of the repay failure and annual incrome for most of the address states.
+We can see that there still exists a moderate negative linear relationship between the logit of the repay failure and annual income for most of the address states. Additionally, the logit of the proportion of repay failure are different for each state which also shows that address state has an effect on the proportion of repay failure. 
+
 
 Here are the plots for the loan amount vs logit of proportion of repay failure for each issue date. The issue dates that were not able to be plotted like this are Aug-2007, Aug-2008, Jul-2007, Jul-2008, Jun-2007, Jun-2008, May-2008, Nov-2007, Oct-2007, Oct-2008, Sept-2007, Sept-2008.
 
@@ -794,7 +795,7 @@ for(i in 1:43){
   plot(xmamnisd,ympamnisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="Loan_amnt",ylab="Logit(Proportion)")
 }
 ```
-We can see that there still exists a rough positive linear relationship between the logit of the repay failure and loan amount for most of the issue dates.
+We can see that there still exists a rough positive linear relationship between the logit of the repay failure and loan amount for most of the issue dates. Additionally, the logit of the proportion of repay failure are different for each issue date which shows that issue date has an effect on the proportion of repay failure. 
 
 Here are the plots for the interest rate vs logit of proportion of repay failure for each issue date. 
 
@@ -819,7 +820,7 @@ for(i in 1:43){
   plot(xminrisd,ympinrisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="Int_rate",ylab="Logit(Proportion)")
 }
 ```
-We can see that there still exists a strong positive linear relationship between the logit of the repay failure and interest rate for most of the issue dates.
+We can see that there still exists a strong positive linear relationship between the logit of the repay failure and interest rate for most of the issue dates. Additionally, the logit of the proportion of repay failure are different for each issue date which also shows that issue date has an effect on the proportion of repay failure. 
 
 Here are the plots for the annual income vs logit of proportion of repay failure for each issue date. 
 
@@ -845,7 +846,7 @@ for(i in 1:43){
   plot(xmaniisd,ympaniisd,main=paste("issue_d = ",issuedsum[i,1]),xlab="Annual_inc",ylab="Logit(Proportion)")
 }
 ```
-We can see that there still exists a moderate negative linear relationship between the logit of the repay failure and annual income for most of the issue dates.
+We can see that there still exists a moderate negative linear relationship between the logit of the repay failure and annual income for most of the issue dates. Additionally, the logit of the proportion of repay failure are different for each issue date which also shows that issue date has an effect on the proportion of repay failure. 
 
 In conclusion we will still consider doing a logistic regression when accounting for the time and location random effects. Thus, we will consider doing a logistic regression for the generalized linear mixed effects model (GLMM) as hour final model.
 
