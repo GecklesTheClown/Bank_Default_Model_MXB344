@@ -528,6 +528,7 @@ As a result of having so more many variable that need to assessed we are primari
 Interest Rate(highly significant): For a one unit increase in interest rate, the odds of failing to pay your debt (versus not failing to pay your debt ) increase by a factor of 1.14
 Term60 months (highly significant):Having a loan term of 60 months, versus a loan term of 30 months, changes  the odds of repay failure by a factor of 1.19
 Employment 10+ years (mildly significant):Having a employment length of 10+ years, versus a employment length of less than 1 year, changes the odds of repay failure by a factor of 1.41
+Employment/a years (mildly significant):Having a employmentlength/a, versus a employment length of less than 1 year, changes the odds of repay failure by a factor of 1.79
 purposedebt_consolidation(significant):Having  the purpose of incurring debt being debt consolidation versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.23
 purpose educational (highly significant):Having  the purpose of incurring debt being educational versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.82
 purposehouse (significant):Having  the purpose of incurring debt being purchasing a house versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.44
@@ -856,7 +857,7 @@ In conclusion we will still consider doing a logistic regression when accounting
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
 # Scale the continious variables
-cont_var <- c("int_rate","annual_inc")
+cont_var <- c("int_rate","annual_inc","loan_amnt")
 unscaled_var <- extended_loan_data[,cont_var]
 extended_loan_data[,cont_var] <- scale(extended_loan_data[,cont_var])
 sds <- lapply(unscaled_var, sd)
@@ -887,7 +888,7 @@ m2 <- glmer(repay_fail ~
              purpose + 
              verification_status + 
              home_ownership + 
-             annual_inc + annual_inc*int_rate+ 
+             annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
              (1 |addr_state) + 
              (1|issue_d), 
            data = extended_loan_data, 
@@ -915,9 +916,11 @@ plot_summs(forward_sel_model,m2, rescale.distributions = TRUE)
 ```
 
 ```{r}
-se.ranef(m)
-ranef(m)
-confint(m)
+se.ranef(m2)
+ranef(m2)
+res <- ranef(m2)
+hist(res$addr_state[,1])
+dotplot(ranef(m2))
 ```
 ## Interperation of our Model Coefficents
 
