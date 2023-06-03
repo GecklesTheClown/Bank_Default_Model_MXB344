@@ -944,3 +944,80 @@ roc.glm(test)
 ```
 
 
+# Extra Section Graphs for Soap Page
+
+```{r}
+
+soap_1_a <- predict(final_glm, 
+                   type = 'response', 
+                   newdata = validation_loan_data) %>% 
+    
+    prediction(validation_loan_data$repay_fail) %>%
+    
+    performance(measure = "tpr", x.measure = "fpr")
+  
+soap_1_b <- predict(final_glm, 
+                         type = 'response', 
+                         newdata = validation_loan_data) %>% 
+    
+    prediction(validation_loan_data$repay_fail) %>%
+    
+    performance(measure = "auc")
+
+plot(soap_1_a)
+soap_1_b@y.values
+
+
+soap_1_a <- predict(final_glm, 
+                   type = 'response', 
+                   newdata = validation_loan_data) %>% 
+    
+    prediction(validation_loan_data$repay_fail) %>%
+    
+    performance(measure = "tpr", x.measure = "fpr")
+  
+soap_1_b <- predict(final_glm, 
+                         type = 'response', 
+                         newdata = validation_loan_data) %>% 
+    
+    prediction(validation_loan_data$repay_fail) %>%
+    
+    performance(measure = "auc")
+
+soap_1_b@y.values
+
+
+soap_2_a <- predict(m2, 
+                  type = 'response', 
+                  newdata = extended_loan_data) %>% 
+    
+    prediction(extended_loan_data$repay_fail) %>%
+    
+    performance(measure = "tpr", x.measure = "fpr")
+  
+  
+  
+  
+soap_2_b <- predict(m2, 
+                        type = 'response', 
+                        newdata = extended_loan_data) %>% 
+    
+    prediction(extended_loan_data$repay_fail) %>%
+    
+    performance(measure = "auc")
+  
+  soap_2_b@y.values
+  
+
+par(mfrow=c(1,2))
+plot(plot)
+title("Model Without Random Effects")
+abline(a=0, b= 1)
+plot(plot2)
+title("Model With Random Effects")
+abline(a=0, b= 1)
+
+
+
+```
+
