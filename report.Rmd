@@ -444,10 +444,101 @@ plot_summs(nested1, ci_level = 0.95)
 
 ```
 
+```{r}
+test <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+              annual_inc*int_rate,
+                  data = all_loan_data,
+                  family = binomial)
+
+roc.glm(test)
+summary(test)
+test <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+              annual_inc*int_rate+loan_amnt*annual_inc,
+                  data = all_loan_data,
+                  family = binomial)
+
+roc.glm(test)
+summary(test)
+test <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+              annual_inc*int_rate+loan_amnt*int_rate+loan_amnt*annual_inc,
+                  data = all_loan_data,
+                  family = binomial)
+
+roc.glm(test)
+summary(test)
+final_glm <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+              annual_inc*int_rate+loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial)
+
+roc.glm(final_glm)
+summary(final_glm)
+
+```
+
+As stated previously our exploratory analysis found that they were some colinaeraity with annual income , interest rate and loan amount as such we created a models with an interaction term between those three  variables and assessed which produced the best AUC values. From the various models we found that our final model with all variables (excluding loan amount) and the interation term between annual income and interest rate and loan amount and interest rate.
+```{r}
+simulationOutput <- simulateResiduals(fittedModel = final_glm)
+plot(simulationOutput)
+plotResiduals(simulationOutput, all_loan_data$int_rate, quantreg = T)
+par(mfrow = c(1,2))
+testDispersion(simulationOutput)
+simulationOutput = recalculateResiduals(simulationOutput , group = all_loan_data$group)
+testDispersion(simulationOutput)
+plotResiduals(simulationOutput)
+```
 
 ## Model Evaluation
+```{r}
+summary(final_glm)
+plot_summs(final_glm)
+confint(final_glm)
+exp(cbind(OR = coef(final_glm), confint(final_glm)))
 
-
+```
+As a result of having so more many variable that need to assessed we are primarily going to interpret the covariate that are statistically significant .
+Interest Rate(highly significant): For a one unit increase in interest rate, the odds of failing to pay your debt (versus not failing to pay your debt ) increase by a factor of 1.14
+Term60 months (highly significant):Having a loan term of 60 months, versus a loan term of 30 months, changes  the odds of repay failure by a factor of 1.19
+Employment 10+ years (mildly significant):Having a employment length of 10+ years, versus a employment length of less than 1 year, changes the odds of repay failure by a factor of 1.41
+purposedebt_consolidation(significant):Having  the purpose of incurring debt being debt consolidation versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.23
+purpose educational (highly significant):Having  the purpose of incurring debt being educational versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.82
+purposehouse (significant):Having  the purpose of incurring debt being purchasing a house versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.44
+purposemedical(highly significant):Having  the purpose of incurring debt being medical versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.67
+purposemoving(mildly significant):Having  the purpose of incurring debt being moving verus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.61
+purposeother (highly significant):Having  the purpose of incurring debt being other versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.54
+purposesmall_business(high significant):Having  the purpose of incurring debt being small busniess the purpose being purchasing a car, changes the odds of repay failure by a factor of 2.71
+purposevacation(significant):Having  the purpose of incurring debt being vacation versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.48
+verification_statusSource Verified(mildly significant):Having  the verification status being source verified versus the the verificantion status being not verified, changes the odds of repay failure by a factor of 0.88
+home_ownershipOTHER(mildly siginificant)Having  the home ownership status being other versus home ownership status being mortgage t, changes the odds of repay failure by a factor of 1.99
+annual income(highly significant): For a one unit increase in annual income, the odds of failing to pay your debt (versus not failing to pay your debt ) decrease by a factor of 0.99
 # Part 2: Mixed Effects Model
 
 ## Exploration
@@ -806,8 +897,8 @@ m2 <- glmer(repay_fail ~
 
 ```{r, Assessing MEM message=FALSE, cache=TRUE}
 
-summary(m)
-predicted_values.m <- predict(m, type = 'response', newdata = extended_loan_data)
+summary(m2)
+predicted_values.m <- predict(m2, type = 'response', newdata = extended_loan_data)
 pred_m.mem<- prediction(predicted_values.m, extended_loan_data$repay_fail)
 roc.perf = performance(pred_m.mem, measure = "tpr", x.measure = "fpr")
 
@@ -816,16 +907,18 @@ abline(a=0, b= 1)
 auc.perf = performance(pred_m.mem, measure = "auc")
 auc.perf@y.values
 
-roc.glmm(m)
+roc.glmm(m2)
 
-plot_summs(forward_sel_model,m, rescale.distributions = TRUE)
+plot_summs(forward_sel_model,m2, rescale.distributions = TRUE)
+
 ```
 
 ```{r}
-roc.glmm(m)
-roc.glmm(m2)
+se.ranef(m)
+ranef(m)
+confint(m)
 ```
-
+## Interperation of our Model Coefficents
 
 ## Our Actual Best GLM (with interaction term)
 

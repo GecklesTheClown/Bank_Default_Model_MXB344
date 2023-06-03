@@ -32,7 +32,8 @@ pckgs <- c("tidyverse",
            "grid",
            "png",
            "lme4",
-           "glmm")
+           "glmm",
+           "arm")
 
 
 
