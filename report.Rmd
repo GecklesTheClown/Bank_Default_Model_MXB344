@@ -558,8 +558,6 @@ roc.glm(final_model_nested <- nested_final_5)
 ```
 Let's check this was helpful will BIC aswell.
 
-
-
 ```{r}
 BIC(final_glm) ; BIC(final_model_nested)
 ```
@@ -620,24 +618,35 @@ exp(cbind(OR = coef(final_model_nested), confint(final_model_nested)))
 
 ```
 
-
-
 As a result of having so more many variable that need to assessed we are primarily going to interpret the covariate that are statistically significant .
-Interest Rate(highly significant): For a one unit increase in interest rate, the odds of failing to pay your debt (versus not failing to pay your debt ) increase by a factor of 1.14
-Term60 months (highly significant):Having a loan term of 60 months, versus a loan term of 30 months, changes  the odds of repay failure by a factor of 1.19
-Employment 10+ years (mildly significant):Having a employment length of 10+ years, versus a employment length of less than 1 year, changes the odds of repay failure by a factor of 1.41
-Employment/a years (mildly significant):Having a employmentlength/a, versus a employment length of less than 1 year, changes the odds of repay failure by a factor of 1.79
-purposedebt_consolidation(significant):Having  the purpose of incurring debt being debt consolidation versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.23
-purpose educational (highly significant):Having  the purpose of incurring debt being educational versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.82
-purposehouse (significant):Having  the purpose of incurring debt being purchasing a house versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.44
-purposemedical(highly significant):Having  the purpose of incurring debt being medical versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.67
-purposemoving(mildly significant):Having  the purpose of incurring debt being moving verus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.61
-purposeother (highly significant):Having  the purpose of incurring debt being other versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.54
-purposesmall_business(high significant):Having  the purpose of incurring debt being small busniess the purpose being purchasing a car, changes the odds of repay failure by a factor of 2.71
-purposevacation(significant):Having  the purpose of incurring debt being vacation versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.48
-verification_statusSource Verified(mildly significant):Having  the verification status being source verified versus the the verificantion status being not verified, changes the odds of repay failure by a factor of 0.88
-home_ownershipOTHER(mildly siginificant)Having  the home ownership status being other versus home ownership status being mortgage t, changes the odds of repay failure by a factor of 1.99
-annual income(highly significant): For a one unit increase in annual income, the odds of failing to pay your debt (versus not failing to pay your debt ) decrease by a factor of 0.99
+
+Interest Rate(highly significant): For a one unit increase in interest rate, the odds of failing to pay your debt (versus not failing to pay your debt ) increase by a factor of 1.152
+
+Term60 months (highly significant): Having a loan term of 60 months, versus a loan term of 30 months, changes  the odds of repay failure by a factor of 1.19
+
+Employment 10+ years (mildly significant):Having a employment length of 10+ years, versus a employment length of less than 1 year, changes the odds of repay failure by a factor of 1.012
+
+Employment n/a years (highly significant): Having a employmentlength/a, versus a employment length of less than 1 year, changes the odds of repay failure by a factor of 1.779
+
+purposedebt_consolidation (significant): Having  the purpose of incurring debt being debt consolidation versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.2374
+
+purpose educational (highly significant): Having  the purpose of incurring debt being educational versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.8402
+
+purposehouse (significant): Having the purpose of incurring debt being purchasing a house versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.4583
+
+purposemedical (highly significant): Having  the purpose of incurring debt being medical versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.6770
+
+purposemoving (mildly significant): Having  the purpose of incurring debt being moving verus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.6364
+
+purposeother (highly significant): Having  the purpose of incurring debt being other versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.5529
+
+purposesmall_business (high significant): Having  the purpose of incurring debt being small busniess the purpose being purchasing a car, changes the odds of repay failure by a factor of 2.713
+
+purposevacation (mildly significant): Having  the purpose of incurring debt being vacation versus the purpose being purchasing a car, changes the odds of repay failure by a factor of 1.4899
+
+verification_statusSource Verified(mildly significant):Having  the verification status being source verified versus the the verificantion status being not verified, changes the odds of repay failure by a factor of 0.8825
+
+annual income(highly significant): For a one unit increase in annual income, the odds of failing to pay your debt (versus not failing to pay your debt ) decrease by a factor of 1.0000
 
 # Part 2: Mixed Effects Model
 ## Exploration
@@ -952,7 +961,7 @@ In conclusion we will still consider doing a logistic regression when accounting
 
 ## Model Building 
 
-Using our knowledge from the fixed effects model we can test some fixed effects models. We have decided to use our model with the best AUC value instead of our nested model because we do not know how terms will change in significance after adding random effects.
+Using our knowledge from the fixed effects model we can test some fixed effects models. We have decided to use our model with the best AUC value instead of our nested model because we do not know how terms will change in significance after adding random effects. This means that we will compare the covariates of our final_model not the final_mixed_model to our mixed effects model.
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
@@ -1046,7 +1055,6 @@ Indeed yes our AUC value went from 0.6910845 to ______ this is a marginal improv
 your model with/without location and time information?
 
 One surprising difference found between the two models was the significance of verification_status in our fixed effects model this was significant while in our random effects model it was not
-
 
 5. Does credit risk change over time or between states?
 
