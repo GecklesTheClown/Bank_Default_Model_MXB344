@@ -890,9 +890,20 @@ m2 <- glmer(repay_fail ~
              purpose + 
              verification_status + 
              home_ownership + 
-             annual_inc + 
-             annual_inc*int_rate + 
-             loan_amnt*int_rate+
+             annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
+             (1 |zip_code) + 
+             (1|issue_d), 
+           data = extended_loan_data, 
+           family = binomial,
+           control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
+m3 <- glmer(repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
              (1 |addr_state) + 
              (1|issue_d), 
            data = extended_loan_data, 
@@ -916,7 +927,7 @@ auc.perf@y.values
 
 roc.glmm(m2)
 
-plot_summs(forward_sel_model,m2, rescale.distributions = TRUE)
+plot_summs(final_glm,m2, rescale.distributions = TRUE)
 
 ```
 
@@ -924,23 +935,13 @@ plot_summs(forward_sel_model,m2, rescale.distributions = TRUE)
 se.ranef(m2)
 ranef(m2)
 res <- ranef(m2)
-hist(res$addr_state[,1])
+
 dotplot(ranef(m2))
+
 ```
 ## Interperation of our Model Coefficents
 
-# Conclusion 
-
-In conclusion this report set out to build a statistical model to predict loan default based on information known at the time of application. To replace our old model prior to "Apollo's" Acquisition. With this we addressed a number of concerns posed by management.
-
-1. How does your new model perform compared to the one you used previously? How can it be expected to perform on new loan applications?
-
-Both our fixed-effects and mixed effects model perform significantly better in terms of (Gini value) to the model used prior of the acquisition.
-
-2. What are the important variables in this model?
-
-It vital for banks to be able explain how an application is assessed, this coincides with our models proposed significant variables. Talking in terms of the fixed effects model, these include:
-
-
+We can see from the plots above which shows the estimated coefficient and corresponding confidence intervals for the random effects variables. We can see from the issue_id plot that confidence interval for the random effects at the tips do not pass overlapped zero which suggest that does values are significantly different from zero. This would suggest that issue date (time) has a significant impact on repay failure at 95% CI. From the plot of the addr_state we can that see a couple of the confidence intervals at the top of the tail do not overlapp zero which would suggest that those coefficients a significantly greater than zero. However, the vast majority of random effects overlapped zero suggesting that state effect on repay failure is insignificant. This would probably require further investigation to from any certain conclusions.
+## Our Actual Best GLM (with interaction term)
 
 
