@@ -1057,8 +1057,6 @@ roc.glmm(Final_glmm)
 ```
 We can see that the glmm with the random effect zip code performs better compared to addr state based on the AUC and AIC
 
-Now these two models will be compared using AUC values.
-
 
 ```{r, Assessing MEM message=FALSE, cache=TRUE}
 
