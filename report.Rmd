@@ -628,8 +628,8 @@ final_glm_cloglog<- glm(formula = repay_fail ~
                   data = all_loan_data,
                   family = binomial(link = "cloglog"))
 
-roc.glm(final_glm_logit)
-roc.glm(final_glm_probit)
+roc.glm(final_model_nested_logit)
+roc.glm(final_model_nested_probit)
 roc.glm(final_glm_cloglog)
 
 ```
