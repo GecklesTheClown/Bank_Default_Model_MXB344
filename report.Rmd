@@ -309,13 +309,16 @@ m.initial <- glm(formula = repay_fail ~
               data = all_loan_data,
               family = binomial(link = "logit"))
 
+summary(m.initial)
 roc.glm(m.initial) #Find the ROCs and AUC values
 
 ```
 
 This is good but let's see if step-wise regression to make it better.
 
-### Stepwise Model 
+### Stepwise Model
+
+Different variations of stepwise regression were used (both, backward & forward)
 
 ```{r M-Build}
 
@@ -325,12 +328,6 @@ full_interaction_model <- glm(data = all_loan_data,
                               formula = repay_fail ~.,
                               family = binomial(link = "logit"))
 
-#Full model with all possible covariates (two-way)
-
-full_interaction_model_P2W <- glm(data = all_loan_data,
-                              formula = repay_fail ~.
-                              + annual_inc*int_rate,
-                              family = binomial(link = "logit"))
 
 #Model with no covariates present
 
@@ -352,26 +349,16 @@ both_sel_model <- stepAIC(full_interaction_model,
                               direction = "both",
                               trace = 0) 
 
-both_sel_model_P2W <- stepAIC(full_interaction_model_P2W, 
-                              direction = "both",
-                              trace = 0)
-
-forward_sel_model_P2W  <- stepAIC(null_model, 
-                             scope=formula(full_interaction_model_P2W),
-                             direction = "forward", trace = 0)
-
 model.list <- list(
   "backward 1W" = backward_sel_model,
   "Forward 1W" = forward_sel_model,
-  "Both 1W" = both_sel_model,
-  "Both P2W" = both_sel_model_P2W,
-  "Forward P2W" = forward_sel_model_P2W)
+  "Both 1W" = both_sel_model)
 
 bics <- sapply(model.list,FUN = BIC)
 
 plot_data <- 
   data.frame(
-    model = c("backward 1W","Forward 1W","Both 1W","Both P2W","Forward P2W"),
+    model = c("backward 1W","Forward 1W","Both 1W"),
     bic = bics)
 
 #Display table with measures:
@@ -380,27 +367,15 @@ knitr::kable(plot_data,row.names = FALSE,
 
 ```
 
+It seems all model agree and thus have all converged to the same model. Thus a random one will be picked.
 
 ## Model Selection
 ```{r, model-per message=FALSE, cache=TRUE}
-
-roc(both_sel_model)
-plot_summs(both_sel_model, ci_level = 0.95)
-
-# acc.perf = performance(pred, measure = "acc")
-# plot(acc.perf)
-# acc.perf_vali = performance(pred_vali, measure = "acc")
-# plot(acc.perf_vali)
-# ind = which.max( slot(acc.perf, "y.values")[[1]] )
-# acc = slot(acc.perf, "y.values")[[1]][ind]
-# cutoff = slot(acc.perf, "x.values")[[1]][ind]
-# print(c(accuracy= acc, cutoff = cutoff))
-# 
-# # Creating a confusion matrix
-# confusionMatrix(training_loan_data$repay_fail,pred_value_labels)
+summary(both_sel_model)
+roc.glm(both_sel_model)
 
 ```
-
+It can be seen that emp_length may not be need so a Chi-squared test was conducted to see.
 Since M2 is nested inside M4 these two models can be compared using a $\chi^2$-test, with hypotheses:
 
 - H0: Additional parameter season is not needed to explain variation
@@ -432,15 +407,8 @@ nested2 <- glm(formula = repay_fail ~
 
 anova(nested1,nested2, test="Chisq")
 
-
-
 ```
-
-```{r}
-roc(nested1)
-plot_summs(nested1, ci_level = 0.95)
-
-```
+It looks like it is needed as the p-value is < 0.05. Next using information from the exploratory analysis section some extra model testing was conducted. This testing will be in the hopes of optimizing AUC value.
 
 ```{r}
 test <- glm(formula = repay_fail ~
@@ -502,8 +470,11 @@ roc.glm(final_glm)
 summary(final_glm)
 
 ```
+
+The final_glm was found to have the best auc value but it has few terms which were not significant, using the same methodology as before, nested models will be tested to see which terms are neccessary.
+
 ```{r}
-final_glm_logit <- glm(formula = repay_fail ~
+final_glm <- glm(formula = repay_fail ~
              int_rate + 
              term + 
              emp_length + 
@@ -516,51 +487,134 @@ final_glm_logit <- glm(formula = repay_fail ~
                   data = all_loan_data,
                   family = binomial(link = "logit"))
 
-final_glm_probit <- glm(formula = repay_fail ~
+nested_final <- glm(formula = repay_fail ~
              int_rate + 
              term + 
-             emp_length + 
              purpose + 
              verification_status + 
              home_ownership + 
              annual_inc +
             annual_inc*int_rate+
             loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+anova(final_glm,nested_final, test="Chisq")
+
+
+nested_final_2 <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             annual_inc +
+             annual_inc*int_rate+
+             loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+anova(final_glm,nested_final_2, test="Chisq")
+
+nested_final_3 <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             annual_inc +
+             loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+
+anova(nested_final_3,nested_final_2, test="Chisq")
+
+nested_final_4 <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             annual_inc +
+             loan_amnt,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+anova(nested_final_4,nested_final_3, test="Chisq")
+
+
+nested_final_5 <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             annual_inc,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+anova(nested_final_5,nested_final_4, test="Chisq")
+
+final_model_nested <- nested_final_5
+
+roc.glm(final_model_nested <- nested_final_5)
+
+```
+Let's check this was helpful will BIC aswell.
+
+
+
+```{r}
+BIC(final_glm) ; BIC(final_model_nested)
+```
+It appears BIC agrees that the nested model is better. Now let's check that the logit functions produces the best AUC values.
+
+
+```{r}
+
+final_model_nested_logit <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             annual_inc,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+
+final_model_nested_probit <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             annual_inc,
                   data = all_loan_data,
                   family = binomial(link = "probit"))
 
-
-final_glm_cloglog<- glm(formula = repay_fail ~
+final_model_nested_cloglog <- glm(formula = repay_fail ~
              int_rate + 
              term + 
              emp_length + 
              purpose + 
              verification_status + 
-             home_ownership + 
-             annual_inc +
-            annual_inc*int_rate+
-            loan_amnt*int_rate,
+             annual_inc,
                   data = all_loan_data,
-                  family = binomial(link = "cloglog"))
+                  family = binomial(link = "probit"))
 
-roc.glm(final_glm_logit)
-roc.glm(final_glm_probit)
-roc.glm(final_glm_cloglog)
+roc.glm(final_glm_logit) ; roc.glm(final_glm_probit) ; roc.glm(final_glm_cloglog)
 
 ```
-It can be seen that best AUC values are given by the canonical (logit) link function.
-
-As stated previously our exploratory analysis found that they were some colinaeraity with annual income , interest rate and loan amount as such we created a models with an interaction term between those three  variables and assessed which produced the best AUC values. From the various models we found that our final model with all variables (excluding loan amount) and the interation term between annual income and interest rate and loan amount and interest rate.
+It appears that keeping it with the canonical logit link function produces the best AUC values. Thus our final glm model is:
 ```{r}
-simulationOutput <- simulateResiduals(fittedModel = final_glm)
-plot(simulationOutput)
-plotResiduals(simulationOutput, all_loan_data$int_rate, quantreg = T)
-par(mfrow = c(1,2))
-testDispersion(simulationOutput)
-simulationOutput = recalculateResiduals(simulationOutput , group = all_loan_data$group)
-testDispersion(simulationOutput)
-plotResiduals(simulationOutput)
+summary(final_model_nested_logit)
+roc.glm(final_model_nested_logit)
+plot_summs(final_model_nested_logit)
 ```
+
+Converting the Gini value given in the task of the report would give an AUC value of 0.11 (old model). Our model is significantly better for both the training data and validation data.
 
 ## Model Evaluation
 ```{r}
@@ -981,7 +1035,7 @@ In conclusion this report set out to build a statistical model to predict loan d
 
 1. How does your new model perform compared to the one you used previously? How can it be expected to perform on new loan applications?
 
-Both our fixed-effects and mixed effects model perform significantly better in terms of (Gini value) to the model used prior of the acquisition.
+Both our fixed-effects and mixed effects model perform significantly better in terms of (AUC values) to the model used prior of the acquisition.
 
 2. What are the important variables in this model?
 
@@ -1001,6 +1055,6 @@ One surprising difference found between the two models was the significance of v
 
 From our analysis of our random effects model we have evidence to suggest that credit risk changes over time and not between states.
 
-Thus, we have answered every question requested by management and created a significantly improved model to predict loan default based on information known at the time of application.
+Thus, we have answered every question requested by management and created a significantly improved model to predict loan default based on information known at the time of application. 
 
 
