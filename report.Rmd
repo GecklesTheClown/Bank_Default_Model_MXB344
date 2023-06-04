@@ -931,3 +931,16 @@ dotplot(ranef(m2))
 
 # Conclusion 
 
+In conclusion this report set out to build a statistical model to predict loan default based on information known at the time of application. To replace our old model prior to "Apollo's" Acquisition. With this we addressed a number of concerns posed by management.
+
+1. How does your new model perform compared to the one you used previously? How can it be expected to perform on new loan applications?
+
+Both our fixed-effects and mixed effects model perform significantly better in terms of (Gini value) to the model used prior of the acquisition.
+
+2. What are the important variables in this model?
+
+It vital for banks to be able explain how an application is assessed, this coincides with our models proposed significant variables. Talking in terms of the fixed effects model, these include:
+
+
+
+
