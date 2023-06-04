@@ -95,7 +95,6 @@ After this short explanation of the dataset we will do some initial exploration 
 
 
 # Part 1 : Fixed Effects Model 
-
 ## Exploration
 
 ```{r setup (all_loan_data), include=FALSE}
@@ -314,11 +313,7 @@ roc.glm(m.initial) #Find the ROCs and AUC values
 
 ```
 
-This is good but let's see if step-wise regression to make it better.
-
-### Stepwise Model
-
-Different variations of stepwise regression were used (both, backward & forward)
+This is good but let's see if step-wise regression to make it better. Different variations of stepwise regression were used (both, backward & forward)
 
 ```{r M-Build}
 
@@ -618,12 +613,15 @@ Converting the Gini value given in the task of the report would give an AUC valu
 
 ## Model Evaluation
 ```{r}
-summary(final_glm)
-plot_summs(final_glm)
-confint(final_glm)
-exp(cbind(OR = coef(final_glm), confint(final_glm)))
+summary(final_model_nested)
+plot_summs(final_model_nested)
+confint(final_model_nested)
+exp(cbind(OR = coef(final_model_nested), confint(final_model_nested)))
 
 ```
+
+
+
 As a result of having so more many variable that need to assessed we are primarily going to interpret the covariate that are statistically significant .
 Interest Rate(highly significant): For a one unit increase in interest rate, the odds of failing to pay your debt (versus not failing to pay your debt ) increase by a factor of 1.14
 Term60 months (highly significant):Having a loan term of 60 months, versus a loan term of 30 months, changes  the odds of repay failure by a factor of 1.19
@@ -642,7 +640,6 @@ home_ownershipOTHER(mildly siginificant)Having  the home ownership status being 
 annual income(highly significant): For a one unit increase in annual income, the odds of failing to pay your debt (versus not failing to pay your debt ) decrease by a factor of 0.99
 
 # Part 2: Mixed Effects Model
-
 ## Exploration
 We have been provided with an extended data set that contains our random effects (we will only consider 2 of them for model fitting). We will do a separate exploratory analysis for the extended data set due to it having 38419 applicants while the normal data set has 30735. Thus there could be changes to the relationships and observations made in the previous exploratory analysis for the normal data set (without the random effects)
 
@@ -955,7 +952,7 @@ In conclusion we will still consider doing a logistic regression when accounting
 
 ## Model Building 
 
-Using our knowledge from the fixed effects model we can test some fixed effects models.
+Using our knowledge from the fixed effects model we can test some fixed effects models. We have decided to use our model with the best AUC value instead of our nested model because we do not know how terms will change in significance after adding random effects.
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
@@ -1039,7 +1036,7 @@ Both our fixed-effects and mixed effects model perform significantly better in t
 
 2. What are the important variables in this model?
 
-It vital for banks to be able explain how an application is assessed, this coincides with our models proposed significant variables. Talking in terms of the fixed effects model, these include: int_rate, term, emp_length, purpose & verification_status, home_ownership, annual_inc. In addition to two interaction terms for (loan_amnt & int_rate) and (annual_inc & int_rate)
+It vital for banks to be able explain how an application is assessed, this coincides with our models proposed significant variables. Talking in terms of the fixed effects model, these include: int_rate, term, emp_length, purpose, verification_statu annual_inc
 
 3. Can accounting for this variation (e.g., state/zip-code and time) improve performance benchmarks?
 
