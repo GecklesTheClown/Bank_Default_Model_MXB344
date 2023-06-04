@@ -889,12 +889,13 @@ m2 <- glmer(repay_fail ~
              verification_status + 
              home_ownership + 
              annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
-             (1 |zip_code) + 
+             (1 |addr_state) + 
              (1|issue_d), 
            data = extended_loan_data, 
            family = binomial,
            control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
-m3 <- glmer(repay_fail ~
+#Glmm with zip code as random effect
+Final_glmm <- glmer(repay_fail ~
              int_rate + 
              term + 
              emp_length + 
@@ -902,18 +903,19 @@ m3 <- glmer(repay_fail ~
              verification_status + 
              home_ownership + 
              annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
-             (1 |addr_state) + 
+             (1 |zip_code) + 
              (1|issue_d), 
            data = extended_loan_data, 
            family = binomial,
            control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
-
+roc.glmm(m2)
+roc.glmm(Final_glmm)
 ```
-
+We can see that the glmm with the random effect zip code perfroms better compared to addr state
 ```{r, Assessing MEM message=FALSE, cache=TRUE}
 
-summary(m2)
-predicted_values.m <- predict(m2, type = 'response', newdata = extended_loan_data)
+summary(Final_glmm)
+predicted_values.m <- predict(Final_glmm, type = 'response', newdata = extended_loan_data)
 pred_m.mem<- prediction(predicted_values.m, extended_loan_data$repay_fail)
 roc.perf = performance(pred_m.mem, measure = "tpr", x.measure = "fpr")
 
@@ -922,10 +924,13 @@ abline(a=0, b= 1)
 auc.perf = performance(pred_m.mem, measure = "auc")
 auc.perf@y.values
 
-roc.glmm(m2)
+roc.glmm(Final_glmm)
+data.frame(summary(Final_glmm)$coef[summary(Final_glmm)$coef[,4]>=.05,4])
 
-plot_summs(final_glm,m2, rescale.distributions = TRUE)
+plot_summs(final_glm,Final_glmm, rescale.distributions = TRUE,exp = TRUE,omit.coefs = )
 
+#"emp_length10+ years""emp_lengthn/a""purposedebt_consolidation""purposeeducational""purposemedical""purposemoving""purposeother"
+#"purposesmall_business""home_ownershipOTHER""annual_inc""int_rate:annual_inc")
 ```
 
 ```{r}
@@ -934,10 +939,15 @@ ranef(m2)
 res <- ranef(m2)
 
 dotplot(ranef(m2))
+dotplot(ranef(Final_glmm))
 
 ```
 ## Interperation of our Model Coefficents
-We can see from the plots above which shows the estimated coefficient and corresponding confidence intervals for the random effects variables. We can see from the issue_id plot that confidence interval for the random effects at the tips do not pass overlapped zero which suggest that does values are significantly different from zero. This would suggest that issue date (time) has a significant impact on repay failure at 95% CI. From the plot of the addr_state we can that see a couple of the confidence intervals at the top of the tail do not overlapp zero which would suggest that those coefficients a significantly greater than zero. However, the vast majority of random effects overlapped zero suggesting that state effect on repay failure is insignificant. This would probably require further investigation to from any certain conclusions.
+We can see from the plots above which shows the estimated coefficient and corresponding confidence intervals for the random effects variables. We can see from the issue_id plot that confidence interval for the random effects at the tips do not pass overlapped zero which suggest that does values are significantly different from zero. This would suggest that issue date (time) has a significant impact on repay failure at 95% CI. From the plot of the addr_state we can that see a couple of the confidence intervals at the top of the tail do not overlapp zero which would suggest that those coefficients a significantly greater than zero. However, the vast majority of random effects overlapped zero suggesting that state effect on repay failure is insignificant. This would probably require further investigation by assessing the random effect of zip_code.
+
+## Difference between GLM and GLMM model
+Purpose House: The purpose house co variate is no longer consider significant in our GLMM model
+
 ## Our Actual Best GLM (with interaction term)
 
 ```{r}
