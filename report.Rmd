@@ -2,7 +2,9 @@
 title: "Report"
 author: "TBD"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 # Introduction 
@@ -386,7 +388,7 @@ Since M2 is nested inside M4 these two models can be compared using a $\chi^2$-t
 - H0: Additional parameter season is not needed to explain variation
 - H1: Additional parameter season is needed to explain variation
 
-```{r, model-per message=FALSE, cache=TRUE}
+```{r, model-per2 message=FALSE, cache=TRUE}
 nested1 <- glm(formula = repay_fail ~
                 int_rate + 
                 term + 
