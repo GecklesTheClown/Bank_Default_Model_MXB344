@@ -298,24 +298,22 @@ We can see that there is a rough positive linear relationship between the logit 
 
 ## Model Building
 
-Let's try our hand a creating a model based on our own beliefs from research and exploration 
-
-### Initial Model 
+Let's try our hand a creating a model based on our own beliefs from domain research and exploration 
 
 ```{r}
 m.initial <- glm(formula = repay_fail ~ 
                term + 
-               purpose +                                
+               purpose +                        
                verification_status +  
                annual_inc,
               data = all_loan_data,
               family = binomial(link = "logit"))
 
-roc.glm(m.initial)
+roc.glm(m.initial) #Find the ROCs and AUC values
 
 ```
 
-This is good but let's see if stepwise can make it better.
+This is good but let's see if step-wise regression to make it better.
 
 ### Stepwise Model 
 
@@ -495,7 +493,8 @@ final_glm <- glm(formula = repay_fail ~
              verification_status + 
              home_ownership + 
              annual_inc +
-              annual_inc*int_rate+loan_amnt*int_rate,
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
                   data = all_loan_data,
                   family = binomial)
 
@@ -540,6 +539,7 @@ purposevacation(significant):Having  the purpose of incurring debt being vacatio
 verification_statusSource Verified(mildly significant):Having  the verification status being source verified versus the the verificantion status being not verified, changes the odds of repay failure by a factor of 0.88
 home_ownershipOTHER(mildly siginificant)Having  the home ownership status being other versus home ownership status being mortgage t, changes the odds of repay failure by a factor of 1.99
 annual income(highly significant): For a one unit increase in annual income, the odds of failing to pay your debt (versus not failing to pay your debt ) decrease by a factor of 0.99
+
 # Part 2: Mixed Effects Model
 
 ## Exploration
@@ -854,6 +854,8 @@ In conclusion we will still consider doing a logistic regression when accounting
 
 ## Model Building 
 
+Using our knowledge from the fixed effects model we can test some fixed effects models.
+
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
 # Scale the continious variables
@@ -888,7 +890,9 @@ m2 <- glmer(repay_fail ~
              purpose + 
              verification_status + 
              home_ownership + 
-             annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
+             annual_inc + 
+             annual_inc*int_rate + 
+             loan_amnt*int_rate+
              (1 |addr_state) + 
              (1|issue_d), 
            data = extended_loan_data, 
@@ -896,6 +900,7 @@ m2 <- glmer(repay_fail ~
            control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
 
 ```
+Now these two models will be compared using AUC values.
 
 ```{r, Assessing MEM message=FALSE, cache=TRUE}
 
@@ -924,100 +929,5 @@ dotplot(ranef(m2))
 ```
 ## Interperation of our Model Coefficents
 
-## Our Actual Best GLM (with interaction term)
-
-```{r}
-test <- glm(formula = repay_fail ~
-             int_rate + 
-             term + 
-             emp_length + 
-             purpose + 
-             verification_status + 
-             home_ownership + 
-             annual_inc + 
-              annual_inc*int_rate,
-                  data = all_loan_data,
-                  family = binomial)
-
-roc.glm(test)
-
-```
-
-
-# Extra Section Graphs for Soap Page
-
-```{r}
-
-soap_1_a <- predict(final_glm, 
-                   type = 'response', 
-                   newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "tpr", x.measure = "fpr")
-  
-soap_1_b <- predict(final_glm, 
-                         type = 'response', 
-                         newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "auc")
-
-plot(soap_1_a)
-soap_1_b@y.values
-
-
-soap_1_a <- predict(final_glm, 
-                   type = 'response', 
-                   newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "tpr", x.measure = "fpr")
-  
-soap_1_b <- predict(final_glm, 
-                         type = 'response', 
-                         newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "auc")
-
-soap_1_b@y.values
-
-
-soap_2_a <- predict(m2, 
-                  type = 'response', 
-                  newdata = extended_loan_data) %>% 
-    
-    prediction(extended_loan_data$repay_fail) %>%
-    
-    performance(measure = "tpr", x.measure = "fpr")
-  
-  
-  
-  
-soap_2_b <- predict(m2, 
-                        type = 'response', 
-                        newdata = extended_loan_data) %>% 
-    
-    prediction(extended_loan_data$repay_fail) %>%
-    
-    performance(measure = "auc")
-  
-  soap_2_b@y.values
-  
-
-par(mfrow=c(1,2))
-plot(plot)
-title("Model Without Random Effects")
-abline(a=0, b= 1)
-plot(plot2)
-title("Model With Random Effects")
-abline(a=0, b= 1)
-
-
-
-```
+# Conclusion 
 
