@@ -999,7 +999,7 @@ In conclusion we will still consider doing a logistic regression when accounting
 Using our knowledge from the fixed effects model we can test some fixed effects models. We have decided to use our model with the best AUC value instead of our nested model because we do not know how terms will change in significance after adding random effects. This means that we will compare the covariates of our final_model not the final_mixed_model to our mixed effects model.
 
 
-```{r, Mixed Effect model message=FALSE, cache=TRUE}
+```{r, Mixed Effect model, message=FALSE, cache=TRUE}
 
 # Scale the continious variables
 cont_var <- c("int_rate","annual_inc","loan_amnt")
@@ -1060,7 +1060,7 @@ roc.glmm(Final_glmm)
 We can see that the glmm with the random effect zip code performs better compared to addr state based on the AUC and AIC
 
 
-```{r, Assessing MEM message=FALSE, cache=TRUE}
+```{r, Assessing MEM, message=FALSE, cache=TRUE}
 
 summary(Final_glmm)
 predicted_values.m <- predict(Final_glmm, type = 'response', newdata = extended_loan_data)
