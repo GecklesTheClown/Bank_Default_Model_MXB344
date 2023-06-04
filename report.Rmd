@@ -889,6 +889,19 @@ m2 <- glmer(repay_fail ~
              verification_status + 
              home_ownership + 
              annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
+             (1 |zip_code) + 
+             (1|issue_d), 
+           data = extended_loan_data, 
+           family = binomial,
+           control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
+m3 <- glmer(repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc + annual_inc*int_rate+ loan_amnt*int_rate+
              (1 |addr_state) + 
              (1|issue_d), 
            data = extended_loan_data, 
@@ -911,7 +924,7 @@ auc.perf@y.values
 
 roc.glmm(m2)
 
-plot_summs(forward_sel_model,m2, rescale.distributions = TRUE)
+plot_summs(final_glm,m2, rescale.distributions = TRUE)
 
 ```
 
@@ -919,11 +932,12 @@ plot_summs(forward_sel_model,m2, rescale.distributions = TRUE)
 se.ranef(m2)
 ranef(m2)
 res <- ranef(m2)
-hist(res$addr_state[,1])
+
 dotplot(ranef(m2))
+
 ```
 ## Interperation of our Model Coefficents
-
+We can see from the plots above which shows the estimated coefficient and corresponding confidence intervals for the random effects variables. We can see from the issue_id plot that confidence interval for the random effects at the tips do not pass overlapped zero which suggest that does values are significantly different from zero. This would suggest that issue date (time) has a significant impact on repay failure at 95% CI. From the plot of the addr_state we can that see a couple of the confidence intervals at the top of the tail do not overlapp zero which would suggest that those coefficients a significantly greater than zero. However, the vast majority of random effects overlapped zero suggesting that state effect on repay failure is insignificant. This would probably require further investigation to from any certain conclusions.
 ## Our Actual Best GLM (with interaction term)
 
 ```{r}
@@ -943,81 +957,4 @@ roc.glm(test)
 
 ```
 
-
-# Extra Section Graphs for Soap Page
-
-```{r}
-
-soap_1_a <- predict(final_glm, 
-                   type = 'response', 
-                   newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "tpr", x.measure = "fpr")
-  
-soap_1_b <- predict(final_glm, 
-                         type = 'response', 
-                         newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "auc")
-
-plot(soap_1_a)
-soap_1_b@y.values
-
-
-soap_1_a <- predict(final_glm, 
-                   type = 'response', 
-                   newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "tpr", x.measure = "fpr")
-  
-soap_1_b <- predict(final_glm, 
-                         type = 'response', 
-                         newdata = validation_loan_data) %>% 
-    
-    prediction(validation_loan_data$repay_fail) %>%
-    
-    performance(measure = "auc")
-
-soap_1_b@y.values
-
-
-soap_2_a <- predict(m2, 
-                  type = 'response', 
-                  newdata = extended_loan_data) %>% 
-    
-    prediction(extended_loan_data$repay_fail) %>%
-    
-    performance(measure = "tpr", x.measure = "fpr")
-  
-  
-  
-  
-soap_2_b <- predict(m2, 
-                        type = 'response', 
-                        newdata = extended_loan_data) %>% 
-    
-    prediction(extended_loan_data$repay_fail) %>%
-    
-    performance(measure = "auc")
-  
-  soap_2_b@y.values
-  
-
-par(mfrow=c(1,2))
-plot(plot)
-title("Model Without Random Effects")
-abline(a=0, b= 1)
-plot(plot2)
-title("Model With Random Effects")
-abline(a=0, b= 1)
-
-
-
-```
 
