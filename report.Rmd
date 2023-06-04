@@ -298,24 +298,22 @@ We can see that there is a rough positive linear relationship between the logit 
 
 ## Model Building
 
-Let's try our hand a creating a model based on our own beliefs from research and exploration 
-
-### Initial Model 
+Let's try our hand a creating a model based on our own beliefs from domain research and exploration 
 
 ```{r}
 m.initial <- glm(formula = repay_fail ~ 
                term + 
-               purpose +                                
+               purpose +                        
                verification_status +  
                annual_inc,
               data = all_loan_data,
               family = binomial(link = "logit"))
 
-roc.glm(m.initial)
+roc.glm(m.initial) #Find the ROCs and AUC values
 
 ```
 
-This is good but let's see if stepwise can make it better.
+This is good but let's see if step-wise regression to make it better.
 
 ### Stepwise Model 
 
@@ -495,7 +493,8 @@ final_glm <- glm(formula = repay_fail ~
              verification_status + 
              home_ownership + 
              annual_inc +
-              annual_inc*int_rate+loan_amnt*int_rate,
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
                   data = all_loan_data,
                   family = binomial)
 
@@ -503,6 +502,53 @@ roc.glm(final_glm)
 summary(final_glm)
 
 ```
+```{r}
+final_glm_logit <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+final_glm_probit <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "probit"))
+
+
+final_glm_cloglog<- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "cloglog"))
+
+roc.glm(final_glm_logit)
+roc.glm(final_glm_probit)
+roc.glm(final_glm_cloglog)
+
+```
+It can be seen that best AUC values are given by the canonical (logit) link function.
 
 As stated previously our exploratory analysis found that they were some colinaeraity with annual income , interest rate and loan amount as such we created a models with an interaction term between those three  variables and assessed which produced the best AUC values. From the various models we found that our final model with all variables (excluding loan amount) and the interation term between annual income and interest rate and loan amount and interest rate.
 ```{r}
@@ -540,6 +586,7 @@ purposevacation(significant):Having  the purpose of incurring debt being vacatio
 verification_statusSource Verified(mildly significant):Having  the verification status being source verified versus the the verificantion status being not verified, changes the odds of repay failure by a factor of 0.88
 home_ownershipOTHER(mildly siginificant)Having  the home ownership status being other versus home ownership status being mortgage t, changes the odds of repay failure by a factor of 1.99
 annual income(highly significant): For a one unit increase in annual income, the odds of failing to pay your debt (versus not failing to pay your debt ) decrease by a factor of 0.99
+
 # Part 2: Mixed Effects Model
 
 ## Exploration
@@ -854,6 +901,8 @@ In conclusion we will still consider doing a logistic regression when accounting
 
 ## Model Building 
 
+Using our knowledge from the fixed effects model we can test some fixed effects models.
+
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
 # Scale the continious variables
@@ -908,10 +957,15 @@ Final_glmm <- glmer(repay_fail ~
            data = extended_loan_data, 
            family = binomial,
            control=glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=1e6)))
+
 roc.glmm(m2)
 roc.glmm(Final_glmm)
 ```
-We can see that the glmm with the random effect zip code perfroms better compared to addr state
+We can see that the glmm with the random effect zip code performs better compared to addr state
+
+Now these two models will be compared using AUC values.
+
+
 ```{r, Assessing MEM message=FALSE, cache=TRUE}
 
 summary(Final_glmm)
@@ -927,44 +981,52 @@ auc.perf@y.values
 roc.glmm(Final_glmm)
 data.frame(summary(Final_glmm)$coef[summary(Final_glmm)$coef[,4]>=.05,4])
 
-plot_summs(final_glm,Final_glmm, rescale.distributions = TRUE,exp = TRUE,omit.coefs = )
+plot_summs(final_glm,Final_glmm, rescale.distributions = TRUE,exp = TRUE )
 
-#"emp_length10+ years""emp_lengthn/a""purposedebt_consolidation""purposeeducational""purposemedical""purposemoving""purposeother"
-#"purposesmall_business""home_ownershipOTHER""annual_inc""int_rate:annual_inc")
+
+
+
+
 ```
 
+## Interperation of our Model Coefficents
 ```{r}
-se.ranef(m2)
-ranef(m2)
-res <- ranef(m2)
-
-dotplot(ranef(m2))
+plot_summs(final_glm,Final_glmm, rescale.distributions = TRUE,exp = TRUE )
 dotplot(ranef(Final_glmm))
 
 ```
-## Interperation of our Model Coefficents
-We can see from the plots above which shows the estimated coefficient and corresponding confidence intervals for the random effects variables. We can see from the issue_id plot that confidence interval for the random effects at the tips do not pass overlapped zero which suggest that does values are significantly different from zero. This would suggest that issue date (time) has a significant impact on repay failure at 95% CI. From the plot of the addr_state we can that see a couple of the confidence intervals at the top of the tail do not overlapp zero which would suggest that those coefficients a significantly greater than zero. However, the vast majority of random effects overlapped zero suggesting that state effect on repay failure is insignificant. This would probably require further investigation by assessing the random effect of zip_code.
+We can see from the plots above which shows the estimated coefficient and corresponding confidence intervals for the random effects variables. We can see from the issue_id plot that confidence interval for the random effects at the tips do not pass overlapped zero which suggest that does values are significantly different from zero. This would suggest that issue date (time) has a significant impact on repay failure at 95% CI. From the plot of the zip_code we can see that  a couple of the confidence intervals at the top of the tail do not the vast majority of random effects overlapped zero suggesting that state effect on repay failure is insignificant. This would probably require further investigation by assessing the zip_code areas and their composition.
+
+In terms of the interpretation of the coefficients the primary things that changes is that the 'factors' are greater compared to the fixed effects model
 
 ## Difference between GLM and GLMM model
 Purpose House: The purpose house co variate is no longer consider significant in our GLMM model
 
-## Our Actual Best GLM (with interaction term)
+# Conclusion 
+In conclusion this report set out to build a statistical model to predict loan default based on information known at the time of application. To replace our old model prior to "Apollo's" Acquisition. With this we addressed a number of concerns posed by management.
 
-```{r}
-test <- glm(formula = repay_fail ~
-             int_rate + 
-             term + 
-             emp_length + 
-             purpose + 
-             verification_status + 
-             home_ownership + 
-             annual_inc + 
-              annual_inc*int_rate,
-                  data = all_loan_data,
-                  family = binomial)
+1. How does your new model perform compared to the one you used previously? How can it be expected to perform on new loan applications?
 
-roc.glm(test)
+Both our fixed-effects and mixed effects model perform significantly better in terms of (Gini value) to the model used prior of the acquisition for both the validating and the training data
 
-```
+2. What are the important variables in this model?
 
+It vital for banks to be able explain how an application is assessed, this coincides with our models proposed significant variables. Talking in terms of the fixed effects model, these include: int_rate, term, emp_length, purpose & verification_status, home_ownership, annual_inc. In addition to two interaction terms for (loan_amnt & int_rate) and (annual_inc & int_rate)
+
+3. Can accounting for this variation (e.g., state/zip-code and time) improve performance benchmarks?
+
+Indeed yes our AUC value went from 0.6910845 to 0.710275 this is a marginal improvement
+
+4. Are there any surprising differences in variables that are important for predicting credit risk, between
+your model with/without location and time information?
+
+One surprising difference found between the two models was the significance of verification_status in our fixed effects model this was significant while in our random effects model it was not. We also found that the interaction term between int_rate:annual_inc was signifcant in the random effect model and not the fixed effect model
+
+
+5. Does credit risk change over time or between states?
+
+From our analysis of our random effects model we have evidence to suggest that credit risk changes over time and not between states.
+
+Thus, we have answered every question requested by management and created a significantly improved model to predict loan default based on information known at the time of application.
+...
 
