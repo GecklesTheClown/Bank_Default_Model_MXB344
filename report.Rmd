@@ -961,7 +961,7 @@ Final_glmm <- glmer(repay_fail ~
 roc.glmm(m2)
 roc.glmm(Final_glmm)
 ```
-We can see that the glmm with the random effect zip code performs better compared to addr state
+We can see that the glmm with the random effect zip code performs better compared to addr state based on the AUC and AIC
 
 Now these two models will be compared using AUC values.
 
@@ -1020,7 +1020,7 @@ Indeed yes our AUC value went from 0.6910845 to 0.710275 this is a marginal impr
 4. Are there any surprising differences in variables that are important for predicting credit risk, between
 your model with/without location and time information?
 
-One surprising difference found between the two models was the significance of verification_status in our fixed effects model this was significant while in our random effects model it was not. We also found that the interaction term between int_rate:annual_inc was signifcant in the random effect model and not the fixed effect model
+One surprising difference found between the two models was the significance of verification_status in our fixed effects model this was significant while in our random effects model it was not. We also found that the interaction term between int_rate:annual_inc was significant in the random effect model and not the fixed effect model
 
 
 5. Does credit risk change over time or between states?
