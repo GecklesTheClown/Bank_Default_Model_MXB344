@@ -985,5 +985,22 @@ Both our fixed-effects and mixed effects model perform significantly better in t
 
 2. What are the important variables in this model?
 
-It vital for banks to be able explain how an application is assessed, this coincides with our models proposed significant variables. Talking in terms of the fixed effects model, these include:
+It vital for banks to be able explain how an application is assessed, this coincides with our models proposed significant variables. Talking in terms of the fixed effects model, these include: int_rate, term, emp_length, purpose & verification_status, home_ownership, annual_inc. In addition to two interaction terms for (loan_amnt & int_rate) and (annual_inc & int_rate)
+
+3. Can accounting for this variation (e.g., state/zip-code and time) improve performance benchmarks?
+
+Indeed yes our AUC value went from 0.6910845 to ______ this is a marginal improvement
+
+4. Are there any surprising differences in variables that are important for predicting credit risk, between
+your model with/without location and time information?
+
+One surprising difference found between the two models was the significance of verification_status in our fixed effects model this was significant while in our random effects model it was not
+
+
+5. Does credit risk change over time or between states?
+
+From our analysis of our random effects model we have evidence to suggest that credit risk changes over time and not between states.
+
+Thus, we have answered every question requested by management and created a significantly improved model to predict loan default based on information known at the time of application.
+
 
