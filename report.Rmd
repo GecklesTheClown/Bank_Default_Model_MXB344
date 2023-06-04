@@ -502,6 +502,53 @@ roc.glm(final_glm)
 summary(final_glm)
 
 ```
+```{r}
+final_glm_logit <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "logit"))
+
+final_glm_probit <- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "probit"))
+
+
+final_glm_cloglog<- glm(formula = repay_fail ~
+             int_rate + 
+             term + 
+             emp_length + 
+             purpose + 
+             verification_status + 
+             home_ownership + 
+             annual_inc +
+            annual_inc*int_rate+
+            loan_amnt*int_rate,
+                  data = all_loan_data,
+                  family = binomial(link = "cloglog"))
+
+roc.glm(final_glm_logit)
+roc.glm(final_glm_probit)
+roc.glm(final_glm_cloglog)
+
+```
+It can be seen that best AUC values are given by the canonical (logit) link function.
 
 As stated previously our exploratory analysis found that they were some colinaeraity with annual income , interest rate and loan amount as such we created a models with an interaction term between those three  variables and assessed which produced the best AUC values. From the various models we found that our final model with all variables (excluding loan amount) and the interation term between annual income and interest rate and loan amount and interest rate.
 ```{r}
