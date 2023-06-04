@@ -527,7 +527,6 @@ final_glm_probit <- glm(formula = repay_fail ~
             annual_inc*int_rate+
             loan_amnt*int_rate,
                   data = all_loan_data,
-<<<<<<< HEAD
                   family = binomial(link = "logit"))
 
 anova(final_glm,nested_final, test="Chisq")
@@ -621,8 +620,6 @@ final_model_nested_probit <- glm(formula = repay_fail ~
              verification_status + 
              annual_inc,
                   data = all_loan_data,
-=======
->>>>>>> 29e7ee7f531a0cea002b28efee3c567465b3790e
                   family = binomial(link = "probit"))
 
 
@@ -1014,11 +1011,9 @@ In conclusion we will still consider doing a logistic regression when accounting
 
 ## Model Building 
 
-<<<<<<< HEAD
+
 Using our knowledge from the fixed effects model we can test some fixed effects models. We have decided to use our model with the best AUC value instead of our nested model because we do not know how terms will change in significance after adding random effects. This means that we will compare the covariates of our final_model not the final_mixed_model to our mixed effects model.
-=======
-Using our knowledge from the fixed effects model we can test some fixed effects models.
->>>>>>> 29e7ee7f531a0cea002b28efee3c567465b3790e
+
 
 ```{r, Mixed Effect model message=FALSE, cache=TRUE}
 
