@@ -5,7 +5,7 @@ Click on the SOAP PDF
 
 ## To Access Report raw
 
-Click the reprot markdown and run
+Click the report markdown and run
 
 ## To Access Report pdf
 
