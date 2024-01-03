@@ -7,6 +7,6 @@ Click on the SOAP PDF
 
 Click the report markdown and run
 
-## To Access Report pdf
+## To Access Report html
 
-click report pdf
+download and click
